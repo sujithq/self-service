@@ -42,3 +42,7 @@ jobs:
       - name: Test
         id: test
         run: npm run ci-test
+
+      - name: Build
+        id: build
+        run: npm run build
