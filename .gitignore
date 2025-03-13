@@ -1,21 +1,13 @@
-# Dependency directory
-node_modules/
-
-# Coverage directory used by tools like istanbul
+.next
+.npm
+build
 coverage
+linter
+node_modules
+out
 reports
 
-# Optional npm cache directory
-.npm
-
-# Optional eslint cache
-.eslintcache
-
-# OS metadata
 .DS_Store
+.env*
+next-env.d.ts
 Thumbs.db
-
-# Extra
-tmp/
-linter/
-.env

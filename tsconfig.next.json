@@ -5,18 +5,20 @@
     "allowJs": true,
     "noEmit": true
   },
-  "exclude": [".next", "dist", "node_modules"],
-  "include": [
+  "exclude": [
     "__fixtures__",
     "__mocks__",
     "__tests__",
     ".github",
+    ".next",
     "actions",
-    "src",
+    "dist",
+    "node_modules",
+    "out",
     "eslint.config.mjs",
     "jest.config.ts",
-    "next.config.ts",
     "postcss.config.mjs",
     "rollup.config.ts"
-  ]
+  ],
+  "include": ["src", "next-env.d.ts", "next.config.ts", ".next/types/**/*.ts"]
 }
