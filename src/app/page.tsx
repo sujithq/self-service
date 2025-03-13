@@ -52,6 +52,7 @@ export default function Home() {
       <div className="min-h-[100px] rounded-xl bg-muted/50 items-center justify-items-center pt-5 pb-5">
         <h1 className="text-5xl font-bold">IssueOps Self-Service Portal</h1>
       </div>
+      <hr />
       <div className="rounded-xl bg-muted/50 p-4">
         <Form {...form}>
           <form className="w-full space-y-6">
@@ -119,7 +120,6 @@ export default function Home() {
           </form>
         </Form>
       </div>
-      <hr />
       <div className="grid auto-rows-min gap-4 md:grid-cols-3">
         {filteredIssueOps.map((issueOp) => (
           <div
