@@ -1,0 +1,45 @@
+name: Rename Repository
+description: Rename a GitHub repository
+author: Nick Alteen
+
+branding:
+  icon: check-square
+  color: blue
+
+inputs:
+  ##############################
+  # IssueOps Repository Inputs #
+  ##############################
+  issue_ops_organization:
+    description: IssueOps organization name
+    default: ${{ github.event.repository.owner.login }}
+    required: true
+  issue_ops_repository:
+    description: IssueOps repository name
+    default: ${{ github.event.repository.name }}
+    required: true
+  issue_number:
+    description: IssueOps issue number
+    default: ${{ github.event.issue.number }}
+    required: true
+
+  ##############################
+  #        Action Inputs       #
+  ##############################
+  organization:
+    description: Organization name
+    required: true
+  repository:
+    description: Current repository name
+    required: true
+  new_name:
+    description: New repository name
+    required: true
+
+outputs:
+  new_name:
+    description: The new name of the repository
+
+runs:
+  using: node20
+  main: ../../dist/rename-repository/index.js

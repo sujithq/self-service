@@ -3,6 +3,7 @@ import {
   ArrowLeftRight,
   BookDashed,
   BookLock,
+  BookMarked,
   BookUp2,
   Building,
   FolderSync,
@@ -113,6 +114,16 @@ export const AvailableIssueOps: {
     issueTitle: '[IssueOps] Create a new repository',
     labels: ['create-repository'],
     name: 'Create Repository'
+  },
+  {
+    assignees: [],
+    category: Category.REPOSITORY,
+    description: 'Rename a repository in your organization.',
+    icon: BookMarked,
+    issueFormTemplate: 'rename-repository.yml',
+    issueTitle: '[IssueOps] Rename a repository',
+    labels: ['rename-repository'],
+    name: 'Rename Repository'
   },
   {
     assignees: [],

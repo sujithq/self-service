@@ -1,0 +1,7 @@
+validators:
+  - field: rename_repository_current_name
+    script: repository-exists-true.js
+  - field: rename_repository_new_name
+    script: repository-name-valid-true.js
+  - field: rename_repository_new_name
+    script: repository-exist-false.js
