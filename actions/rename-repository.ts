@@ -20,9 +20,11 @@ export async function renameRepository(demoMode: boolean): Promise<void> {
   )
 
   // Get the action inputs
-  const action: Action = core.getInput('action', {
-    required: true
-  }) as Action
+  const action: Action = core
+    .getInput('action', {
+      required: true
+    })
+    .replace('.yml', '') as Action
   const parsedIssueBody: RenameRepositoryBody = JSON.parse(
     core.getInput('parsed_issue_body', {
       required: true

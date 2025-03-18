@@ -34810,7 +34810,8 @@ async function renameRepository(demoMode) {
     // Get the action inputs
     const action = coreExports.getInput('action', {
         required: true
-    });
+    })
+        .replace('.yml', '');
     const parsedIssueBody = JSON.parse(coreExports.getInput('parsed_issue_body', {
         required: true
     }));
