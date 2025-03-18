@@ -4,4 +4,4 @@ validators:
   - field: rename_repository_new_name
     script: repository-name-valid-true.js
   - field: rename_repository_new_name
-    script: repository-exist-false.js
+    script: repository-exists-false.js
