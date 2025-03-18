@@ -34796,7 +34796,7 @@ async function closeIssue(octokit, organization, repository, issueNumber) {
     coreExports.info(`Closed Issue: ${organization}/${repository} #${issueNumber}`);
 }
 
-async function run() {
+async function run(demoMode) {
     // Get the IssueOps inputs
     const issueOpsOrganization = coreExports.getInput('issue_ops_organization', {
         required: true
@@ -34837,13 +34837,13 @@ async function run() {
         repo: parsedIssueBody.rename_repository_current_name
     });
     coreExports.info(`Repository Information: ${JSON.stringify(repo)}`);
-    // Rename the repository
-    // if (repo.name !== parsedIssueBody.rename_repository_new_name)
-    //   await octokit.repos.update({
-    //     owner: parsedIssueBody.rename_repository_organization,
-    //     repo: parsedIssueBody.rename_repository_current_name,
-    //     name: parsedIssueBody.rename_repository_new_name
-    //   })
+    // Rename the repository (when not in demo mode)
+    if (repo.name !== parsedIssueBody.rename_repository_new_name && !demoMode)
+        await octokit.repos.update({
+            owner: parsedIssueBody.rename_repository_organization,
+            repo: parsedIssueBody.rename_repository_current_name,
+            name: parsedIssueBody.rename_repository_new_name
+        });
     // Add a comment to the issue
     await addComment(octokit, issueOpsOrganization, issueOpsRepository, issueNumber, repo.name !== parsedIssueBody.rename_repository_new_name
         ? `Renamed repository \`${parsedIssueBody.rename_repository_organization}/${parsedIssueBody.rename_repository_current_name}\` to \`${parsedIssueBody.rename_repository_organization}/${parsedIssueBody.rename_repository_new_name}\``
@@ -34855,11 +34855,20 @@ async function run() {
     coreExports.info('Action Complete!');
 }
 
+let demoMode = false;
 // Get the action. This determines what function to run.
 const action = coreExports.getInput('action', { required: true });
+// If this actions is running in the `issue-ops/self-service` repository, don't
+// actually run anything. This repository hosts the self-service page and
+// actions, but shouldn't actually run them.
+if (githubExports.context.repo.owner === 'issue-ops' &&
+    githubExports.context.repo.repo === 'self-service') {
+    coreExports.info('Running in `issue-ops/self-service`...switching to demo mode!');
+    demoMode = true;
+}
 switch (action) {
     case 'rename-repository':
-        run();
+        run(demoMode);
         break;
     default:
         coreExports.setFailed(`Unknown action: ${action}`);

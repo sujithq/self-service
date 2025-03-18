@@ -4,7 +4,7 @@ import { Octokit } from '@octokit/rest'
 import type { Action, RenameRepositoryBody } from './types.js'
 import { addComment, closeIssue } from './utils/issues.js'
 
-export async function run(): Promise<void> {
+export async function run(demoMode: boolean): Promise<void> {
   // Get the IssueOps inputs
   const issueOpsOrganization: string = core.getInput('issue_ops_organization', {
     required: true
@@ -57,13 +57,13 @@ export async function run(): Promise<void> {
   })
   core.info(`Repository Information: ${JSON.stringify(repo)}`)
 
-  // Rename the repository
-  // if (repo.name !== parsedIssueBody.rename_repository_new_name)
-  //   await octokit.repos.update({
-  //     owner: parsedIssueBody.rename_repository_organization,
-  //     repo: parsedIssueBody.rename_repository_current_name,
-  //     name: parsedIssueBody.rename_repository_new_name
-  //   })
+  // Rename the repository (when not in demo mode)
+  if (repo.name !== parsedIssueBody.rename_repository_new_name && !demoMode)
+    await octokit.repos.update({
+      owner: parsedIssueBody.rename_repository_organization,
+      repo: parsedIssueBody.rename_repository_current_name,
+      name: parsedIssueBody.rename_repository_new_name
+    })
 
   // Add a comment to the issue
   await addComment(
