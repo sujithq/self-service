@@ -12,3 +12,4 @@ reports
 .env*
 next-env.d.ts
 Thumbs.db
+tsconfig.tsbuildinfo
