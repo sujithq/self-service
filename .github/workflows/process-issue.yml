@@ -77,7 +77,7 @@ jobs:
 
             const issueOps = JSON.parse(
               fs.readFileSync(
-                `${process.env.GITHUB_WORKSPACE}/src/data/issue-ops.json`,
+                `${process.env.GITHUB_WORKSPACE}/data/issue-ops.json`,
                 'utf8'
               )
             ).filter(

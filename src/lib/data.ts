@@ -1,8 +1,7 @@
 import * as Icons from 'lucide-react'
 import { type LucideIcon } from 'lucide-react'
-import IssueOps from '../data/issue-ops.json'
+import IssueOps from '../../data/issue-ops.json'
 import { Category } from './enums'
-// For icons, see: https://lucide.dev/icons
 
 /**
  * Maintains the list of available IssueOps operations.
@@ -13,10 +12,10 @@ export const AvailableIssueOps: {
   assignees: string[]
   category: Category
   description: string
-  icon: LucideIcon
+  icon: LucideIcon // For icons, see: https://lucide.dev/icons
   issueFormTemplate: string
   issueTitle: string
-  labels: string[]
+  label: string
   name: string
 }[] = IssueOps.map((issueOp) => ({
   assignees: issueOp.assignees as string[],
@@ -25,6 +24,6 @@ export const AvailableIssueOps: {
   icon: Icons[issueOp.icon as keyof typeof Icons] as LucideIcon,
   issueFormTemplate: issueOp.issueFormTemplate as string,
   issueTitle: issueOp.issueTitle as string,
-  labels: issueOp.labels as string[],
+  label: issueOp.label as string,
   name: issueOp.name as string
 }))

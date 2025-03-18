@@ -1,5 +1,6 @@
 .next
 .npm
+.rollup.cache
 build
 coverage
 linter

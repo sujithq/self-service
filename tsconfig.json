@@ -3,7 +3,6 @@
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
     "outDir": "./dist",
-    "allowJs": true,
     "noEmit": true
   },
   "exclude": [

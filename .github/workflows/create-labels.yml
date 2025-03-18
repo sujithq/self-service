@@ -32,7 +32,6 @@ jobs:
               fs.readFileSync(
                 path.join(
                   process.env.GITHUB_WORKSPACE,
-                  'src',
                   'data',
                   'issue-ops.json'
                 ), 'utf8'

@@ -58,12 +58,12 @@ export async function run(): Promise<void> {
   core.info(`Repository Information: ${JSON.stringify(repo)}`)
 
   // Rename the repository
-  if (repo.name !== parsedIssueBody.rename_repository_new_name)
-    await octokit.repos.update({
-      owner: parsedIssueBody.rename_repository_organization,
-      repo: parsedIssueBody.rename_repository_current_name,
-      name: parsedIssueBody.rename_repository_new_name
-    })
+  // if (repo.name !== parsedIssueBody.rename_repository_new_name)
+  //   await octokit.repos.update({
+  //     owner: parsedIssueBody.rename_repository_organization,
+  //     repo: parsedIssueBody.rename_repository_current_name,
+  //     name: parsedIssueBody.rename_repository_new_name
+  //   })
 
   // Add a comment to the issue
   await addComment(
