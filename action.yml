@@ -1,5 +1,5 @@
-name: Rename Repository
-description: Rename a GitHub repository
+name: IssueOps Self-Service Action
+description: A series of utilities to drive a self-service IssueOps portal.
 author: Nick Alteen
 
 branding:
@@ -26,14 +26,11 @@ inputs:
   ##############################
   #        Action Inputs       #
   ##############################
-  organization:
-    description: Organization name
+  action:
+    description: Self-service action to run (e.g. `rename-repository`)
     required: true
-  repository:
-    description: Current repository name
-    required: true
-  new_name:
-    description: New repository name
+  parsed_issue_body:
+    description: Parsed issue body
     required: true
 
 outputs:
