@@ -17,6 +17,11 @@ export default async (field) => {
         : process.env.GH_ENTERPRISE_TOKEN
   })
 
+  console.log('Validating repository exists')
+  console.log(`Field: ${field}`)
+  console.log(`Organization: ${process.env.ORGANIZATION}`)
+  console.log(`Owner: ${github.context.repo.owner}`)
+  console.log(process.env.ORGANIZATION === github.context.repo.owner)
   try {
     // Check if the repository exists
     await octokit.rest.repos.get({
@@ -26,7 +31,7 @@ export default async (field) => {
 
     return 'success'
   } catch (error) {
-    if (error.status === 404) return `Repository \`${field}\` already exists`
+    if (error.status === 404) return `Repository \`${field}\` does not exist`
     else throw error
   }
 }
