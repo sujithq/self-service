@@ -11,7 +11,7 @@ export default async (field) => {
   // action is running, we need to use the enterprise token.
   const octokit = new Octokit({
     auth:
-      organization === github.context.repo.owner
+      process.env.ORGANIZATION === github.context.repo.owner
         ? process.env.GH_TOKEN
         : process.env.GH_ENTERPRISE_TOKEN
   })
