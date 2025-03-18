@@ -91,7 +91,7 @@ jobs:
               throw new Error(`Multiple issue ops labels found: ${issueOps.map((issueOp) => issueOp.label).join(', ')}`)
             }
 
-            core.setOutput('template', issueOps[0].template)
+            core.setOutput('template', issueOps[0].issueFormTemplate)
 
       # Parse the issue body into machine-readable JSON, so that it can be
       # processed by the rest of the workflow.
