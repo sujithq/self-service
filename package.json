@@ -33,7 +33,7 @@
     "next:build": "next build",
     "next:dev": "next dev --turbopack",
     "next:lint": "next lint",
-    "package": "npx rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript",
+    "package": "rm -rf dist/ && npx rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript",
     "test": "NODE_OPTIONS=--experimental-vm-modules NODE_NO_WARNINGS=1 npx jest",
     "all": "npm run format:write && npm run lint && npm run test && npm run coverage && npm run package"
   },

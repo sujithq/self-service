@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { Octokit } from '@octokit/rest'
-import { type Action, type RenameRepositoryBody } from './types.js'
+import { Action, RenameRepositoryBody } from './types.js'
 import { addComment, closeIssue } from './utils/issues.js'
 
 export async function renameRepository(demoMode: boolean): Promise<void> {
