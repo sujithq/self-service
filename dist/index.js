@@ -34866,11 +34866,7 @@ if (githubExports.context.repo.owner === 'issue-ops' &&
     coreExports.info('Running in `issue-ops/self-service`...switching to demo mode!');
     demoMode = true;
 }
-switch (action) {
-    case 'rename-repository':
-        await renameRepository(demoMode);
-        break;
-    default:
-        coreExports.setFailed(`Unknown action: ${action}`);
-        break;
-}
+if (action === 'rename-repository')
+    await renameRepository(demoMode);
+else
+    coreExports.setFailed(`Unknown Action: ${action}`);

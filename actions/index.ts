@@ -18,11 +18,5 @@ if (
   demoMode = true
 }
 
-switch (action) {
-  case 'rename-repository':
-    await renameRepository(demoMode)
-    break
-  default:
-    core.setFailed(`Unknown action: ${action}`)
-    break
-}
+if (action === 'rename-repository') await renameRepository(demoMode)
+else core.setFailed(`Unknown Action: ${action}`)
