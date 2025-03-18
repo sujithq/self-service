@@ -34796,7 +34796,7 @@ async function closeIssue(octokit, organization, repository, issueNumber) {
     coreExports.info(`Closed Issue: ${organization}/${repository} #${issueNumber}`);
 }
 
-async function run(demoMode) {
+async function renameRepository(demoMode) {
     // Get the IssueOps inputs
     const issueOpsOrganization = coreExports.getInput('issue_ops_organization', {
         required: true
@@ -34868,7 +34868,7 @@ if (githubExports.context.repo.owner === 'issue-ops' &&
 }
 switch (action) {
     case 'rename-repository':
-        run(demoMode);
+        await renameRepository(demoMode);
         break;
     default:
         coreExports.setFailed(`Unknown action: ${action}`);

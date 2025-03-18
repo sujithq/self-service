@@ -1,6 +1,6 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
-import { run as renameRepository } from './rename-repository.js'
+import { renameRepository } from './rename-repository.js'
 
 let demoMode = false
 
@@ -20,7 +20,7 @@ if (
 
 switch (action) {
   case 'rename-repository':
-    renameRepository(demoMode)
+    await renameRepository(demoMode)
     break
   default:
     core.setFailed(`Unknown action: ${action}`)

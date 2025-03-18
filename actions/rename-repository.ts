@@ -4,7 +4,7 @@ import { Octokit } from '@octokit/rest'
 import type { Action, RenameRepositoryBody } from './types.js'
 import { addComment, closeIssue } from './utils/issues.js'
 
-export async function run(demoMode: boolean): Promise<void> {
+export async function renameRepository(demoMode: boolean): Promise<void> {
   // Get the IssueOps inputs
   const issueOpsOrganization: string = core.getInput('issue_ops_organization', {
     required: true
