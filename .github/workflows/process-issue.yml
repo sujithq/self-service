@@ -13,8 +13,8 @@ permissions:
   issues: write
 
 jobs:
-  validate:
-    name: Validate Issue
+  process:
+    name: Process Issue
     runs-on: ubuntu-latest
 
     # This job should only be run on issues with the `issue-ops` label.
