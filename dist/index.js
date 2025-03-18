@@ -34808,10 +34808,6 @@ async function renameRepository(demoMode) {
         required: true
     }), 10);
     // Get the action inputs
-    const action = coreExports.getInput('action', {
-        required: true
-    })
-        .replace('.yml', '');
     const parsedIssueBody = JSON.parse(coreExports.getInput('parsed_issue_body', {
         required: true
     }));
@@ -34820,7 +34816,6 @@ async function renameRepository(demoMode) {
     coreExports.info(`  Repository: ${issueOpsRepository}`);
     coreExports.info(`  Issue Number: ${issueNumber}`);
     coreExports.info('Action Inputs');
-    coreExports.info(`  Action: ${action}`);
     coreExports.info(`  Organization: ${parsedIssueBody.rename_repository_organization}`);
     coreExports.info(`  Repository: ${parsedIssueBody.rename_repository_current_name}`);
     coreExports.info(`  New Name: ${parsedIssueBody.rename_repository_new_name}`);
@@ -34858,7 +34853,8 @@ async function renameRepository(demoMode) {
 
 let demoMode = false;
 // Get the action. This determines what function to run.
-const action = coreExports.getInput('action', { required: true });
+const action = coreExports.getInput('action', { required: true })
+    .replace('.yml', '');
 // If this actions is running in the `issue-ops/self-service` repository, don't
 // actually run anything. This repository hosts the self-service page and
 // actions, but shouldn't actually run them.

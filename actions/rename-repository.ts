@@ -1,7 +1,7 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { Octokit } from '@octokit/rest'
-import { Action, RenameRepositoryBody } from './types.js'
+import { RenameRepositoryBody } from './types.js'
 import { addComment, closeIssue } from './utils/issues.js'
 
 export async function renameRepository(demoMode: boolean): Promise<void> {
@@ -20,11 +20,6 @@ export async function renameRepository(demoMode: boolean): Promise<void> {
   )
 
   // Get the action inputs
-  const action: Action = core
-    .getInput('action', {
-      required: true
-    })
-    .replace('.yml', '') as Action
   const parsedIssueBody: RenameRepositoryBody = JSON.parse(
     core.getInput('parsed_issue_body', {
       required: true
@@ -37,7 +32,6 @@ export async function renameRepository(demoMode: boolean): Promise<void> {
   core.info(`  Issue Number: ${issueNumber}`)
 
   core.info('Action Inputs')
-  core.info(`  Action: ${action}`)
   core.info(`  Organization: ${parsedIssueBody.rename_repository_organization}`)
   core.info(`  Repository: ${parsedIssueBody.rename_repository_current_name}`)
   core.info(`  New Name: ${parsedIssueBody.rename_repository_new_name}`)
