@@ -128,5 +128,15 @@
     "issueTitle": "[IssueOps] Change the visibility of a repository",
     "label": "change-repository-visibility",
     "name": "Change Visibility"
+  },
+  {
+    "assignees": [],
+    "category": "repository",
+    "description": "Unarchive a repository.",
+    "icon": "BookUp2",
+    "issueFormTemplate": "unarchive-repository.yml",
+    "issueTitle": "[IssueOps] Unarchive a repository",
+    "label": "unarchive-repository",
+    "name": "Unarchive Repository"
   }
 ]
