@@ -17,8 +17,10 @@ jobs:
     name: Process Issue
     runs-on: ubuntu-latest
 
-    # This job should only be run on issues with the `issue-ops` label.
-    if: ${{ contains(github.event.issue.labels.*.name, 'issue-ops') }}
+    # This job should only be run on open issues with the `issue-ops` label.
+    if: |
+      contains(github.event.issue.labels.*.name, 'issue-ops') &&
+      github.event.issue.state == 'open'
 
     steps:
       # This is required to ensure the issue form template and any validation
