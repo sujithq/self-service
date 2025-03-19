@@ -130,8 +130,9 @@ jobs:
           issue_number: ${{ github.event.issue.number }}
           repository: ${{ github.repository }}
 
-      # Process the request.
-      - name: Process Request
+      # If validation passed, process the request.
+      - if: ${{ steps.validate.outputs.result == 'success' }}
+        name: Process Request
         id: process
         uses: issue-ops/self-service@main
         env:
