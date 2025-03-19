@@ -4,7 +4,7 @@ import { Octokit } from '@octokit/rest'
 import { CreateAnnouncementBody } from './types.js'
 import { addComment, closeIssue } from './utils/issues.js'
 
-export async function renameRepository(): Promise<void> {
+export async function createAnnouncement(): Promise<void> {
   // Get the IssueOps inputs
   const issueOpsOrganization: string = core.getInput('issue_ops_organization', {
     required: true
@@ -55,6 +55,7 @@ export async function renameRepository(): Promise<void> {
 
   // Create the announcement (when not in demo mode)
   // if (!DEMO_MODE)
+  // https://docs.github.com/en/enterprise-cloud@latest/rest/announcement-banners/organizations#set-announcement-banner-for-organization
   await octokit.request('PATCH /orgs/{org}/announcement', {
     org: parsedIssueBody.create_announcement_organization,
     announcement: parsedIssueBody.create_announcement_markdown,

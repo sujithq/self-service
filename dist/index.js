@@ -34796,6 +34796,61 @@ async function closeIssue(octokit, organization, repository, issueNumber) {
     coreExports.info(`Closed Issue: ${organization}/${repository} #${issueNumber}`);
 }
 
+async function createAnnouncement() {
+    // Get the IssueOps inputs
+    const issueOpsOrganization = coreExports.getInput('issue_ops_organization', {
+        required: true
+    });
+    const issueOpsRepository = coreExports.getInput('issue_ops_repository', {
+        required: true
+    });
+    const issueNumber = parseInt(coreExports.getInput('issue_number', {
+        required: true
+    }), 10);
+    // Get the action inputs
+    const parsedIssueBody = JSON.parse(coreExports.getInput('parsed_issue_body', {
+        required: true
+    }));
+    coreExports.info('IssueOps Inputs');
+    coreExports.info(`  Organization: ${issueOpsOrganization}`);
+    coreExports.info(`  Repository: ${issueOpsRepository}`);
+    coreExports.info(`  Issue Number: ${issueNumber}`);
+    coreExports.info('Action Inputs');
+    coreExports.info(`  Organization: ${parsedIssueBody.create_announcement_organization}`);
+    coreExports.info(`  Expiration Date: ${parsedIssueBody.create_announcement_expiration_date}`);
+    coreExports.info(`  User Dismissible: ${parsedIssueBody.create_announcement_user_dismissible}`);
+    coreExports.info(`  Markdown: ${parsedIssueBody.create_announcement_markdown}`);
+    // If the organization name is not the same as the organization where this
+    // action is running, we need to use the enterprise token.
+    const octokit = new Octokit({
+        auth: parsedIssueBody.create_announcement_organization ===
+            githubExports.context.repo.owner
+            ? process.env.GH_TOKEN
+            : process.env.GH_ENTERPRISE_TOKEN
+    });
+    // Create the announcement (when not in demo mode)
+    // if (!DEMO_MODE)
+    // https://docs.github.com/en/enterprise-cloud@latest/rest/announcement-banners/organizations#set-announcement-banner-for-organization
+    await octokit.request('PATCH /orgs/{org}/announcement', {
+        org: parsedIssueBody.create_announcement_organization,
+        announcement: parsedIssueBody.create_announcement_markdown,
+        expires_at: new Date(parsedIssueBody.create_announcement_expiration_date).toISOString(),
+        user_dismissible: parsedIssueBody.create_announcement_user_dismissible.selected.includes('Enable')
+    });
+    // Add a comment to the issue
+    await addComment(octokit, issueOpsOrganization, issueOpsRepository, issueNumber, `Created announcement expiring \`${parsedIssueBody.create_announcement_expiration_date}`);
+    coreExports.info(`Created Announcement Expiring: ${parsedIssueBody.create_announcement_expiration_date}`);
+    // Close the issue
+    await closeIssue(octokit, issueOpsOrganization, issueOpsRepository, issueNumber);
+    coreExports.setOutput('expiration_date', parsedIssueBody.create_announcement_expiration_date);
+    coreExports.info('Action Complete!');
+}
+
+const DEMO_MODE = githubExports.context.repo.owner === 'issue-ops' &&
+    githubExports.context.repo.repo === 'self-service'
+    ? true
+    : false;
+
 async function renameRepository() {
     // Get the IssueOps inputs
     const issueOpsOrganization = coreExports.getInput('issue_ops_organization', {
@@ -34851,10 +34906,6 @@ async function renameRepository() {
     coreExports.info('Action Complete!');
 }
 
-const DEMO_MODE = githubExports.context.repo.owner === 'issue-ops' &&
-    githubExports.context.repo.repo === 'self-service'
-    ? true
-    : false;
 // If this action is running in the `issue-ops/self-service` repository, don't
 // actually run anything. This repository hosts the self-service page and
 // actions, but shouldn't actually run them.
@@ -34864,10 +34915,8 @@ if (DEMO_MODE)
 const action = coreExports.getInput('action', { required: true })
     .replace('.yml', '');
 if (action === 'create-announcement')
-    await renameRepository();
+    await createAnnouncement();
 else if (action === 'rename-repository')
     await renameRepository();
 else
     coreExports.setFailed(`Unknown Action: ${action}`);
-
-export { DEMO_MODE };
