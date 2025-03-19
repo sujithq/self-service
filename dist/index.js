@@ -34863,7 +34863,9 @@ if (DEMO_MODE)
 // Get the action. This determines what function to run.
 const action = coreExports.getInput('action', { required: true })
     .replace('.yml', '');
-if (action === 'rename-repository')
+if (action === 'create-announcement')
+    await renameRepository();
+else if (action === 'rename-repository')
     await renameRepository();
 else
     coreExports.setFailed(`Unknown Action: ${action}`);

@@ -1,0 +1,38 @@
+name: '[IssueOps] Create an Organization Announcement Banner'
+description: Creates an organization announcement banner.
+title: '[IssueOps] Create an Organization Announcement Banner'
+labels:
+  - create-announcement
+body:
+  - id: create_announcement_organization
+    type: input
+    attributes:
+      label: Organization
+      description:
+        The GitHub organization where the announcement will be created
+      placeholder: github
+    validations:
+      required: true
+  - id: create_announcement_markdown
+    type: textarea
+    attributes:
+      label: Announcement Markdown
+      description: The markdown content of the announcement banner
+      placeholder: Hello, World!
+    validations:
+      required: true
+  - id: create_announcement_expiration_date
+    type: input
+    attributes:
+      label: Annoucement Expiration Date (YYYY-MM-DD)
+      description: The expiration date in YYYY-MM-DD format
+      placeholder: 2025-01-01
+    validations:
+      required: true
+  - id: create_announcement_user_dismissible
+    type: checkboxes
+    attributes:
+      label: User Dismissible
+      description: Allow individual users to dismiss the banner
+      options:
+        - label: Enable

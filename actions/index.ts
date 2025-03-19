@@ -20,5 +20,6 @@ const action: Action = core
   .getInput('action', { required: true })
   .replace('.yml', '') as Action
 
-if (action === 'rename-repository') await renameRepository()
+if (action === 'create-announcement') await renameRepository()
+else if (action === 'rename-repository') await renameRepository()
 else core.setFailed(`Unknown Action: ${action}`)

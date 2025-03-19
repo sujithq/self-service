@@ -1,3 +1,5 @@
 validators:
+  - field: create_announcement_expiration_date
+    script: date-valid-true.js
   - field: rename_repository_new_name
     script: repository-name-valid-true.js
