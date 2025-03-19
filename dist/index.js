@@ -34760,6 +34760,11 @@ const Octokit = Octokit$1.plugin(requestLog, legacyRestEndpointMethods, paginate
   }
 );
 
+const DEMO_MODE = githubExports.context.repo.owner === 'issue-ops' &&
+    githubExports.context.repo.repo === 'self-service'
+    ? true
+    : false;
+
 /**
  * Utility functions for working with issues
  */
@@ -34829,14 +34834,14 @@ async function createAnnouncement() {
             : process.env.GH_ENTERPRISE_TOKEN
     });
     // Create the announcement (when not in demo mode)
-    // if (!DEMO_MODE)
-    // https://docs.github.com/en/enterprise-cloud@latest/rest/announcement-banners/organizations#set-announcement-banner-for-organization
-    await octokit.request('PATCH /orgs/{org}/announcement', {
-        org: parsedIssueBody.create_announcement_organization,
-        announcement: parsedIssueBody.create_announcement_markdown,
-        expires_at: new Date(parsedIssueBody.create_announcement_expiration_date).toISOString(),
-        user_dismissible: parsedIssueBody.create_announcement_user_dismissible.selected.includes('Enable')
-    });
+    if (!DEMO_MODE)
+        // https://docs.github.com/en/enterprise-cloud@latest/rest/announcement-banners/organizations#set-announcement-banner-for-organization
+        await octokit.request('PATCH /orgs/{org}/announcement', {
+            org: parsedIssueBody.create_announcement_organization,
+            announcement: parsedIssueBody.create_announcement_markdown,
+            expires_at: new Date(parsedIssueBody.create_announcement_expiration_date).toISOString(),
+            user_dismissible: parsedIssueBody.create_announcement_user_dismissible.selected.includes('Enable')
+        });
     // Add a comment to the issue
     await addComment(octokit, issueOpsOrganization, issueOpsRepository, issueNumber, `Created announcement expiring \`${parsedIssueBody.create_announcement_expiration_date}`);
     coreExports.info(`Created Announcement Expiring: ${parsedIssueBody.create_announcement_expiration_date}`);
@@ -34845,11 +34850,6 @@ async function createAnnouncement() {
     coreExports.setOutput('expiration_date', parsedIssueBody.create_announcement_expiration_date);
     coreExports.info('Action Complete!');
 }
-
-const DEMO_MODE = githubExports.context.repo.owner === 'issue-ops' &&
-    githubExports.context.repo.repo === 'self-service'
-    ? true
-    : false;
 
 async function renameRepository() {
     // Get the IssueOps inputs

@@ -1,6 +1,7 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { Octokit } from '@octokit/rest'
+import { DEMO_MODE } from './mode.js'
 import { CreateAnnouncementBody } from './types.js'
 import { addComment, closeIssue } from './utils/issues.js'
 
@@ -54,19 +55,19 @@ export async function createAnnouncement(): Promise<void> {
   })
 
   // Create the announcement (when not in demo mode)
-  // if (!DEMO_MODE)
-  // https://docs.github.com/en/enterprise-cloud@latest/rest/announcement-banners/organizations#set-announcement-banner-for-organization
-  await octokit.request('PATCH /orgs/{org}/announcement', {
-    org: parsedIssueBody.create_announcement_organization,
-    announcement: parsedIssueBody.create_announcement_markdown,
-    expires_at: new Date(
-      parsedIssueBody.create_announcement_expiration_date
-    ).toISOString(),
-    user_dismissible:
-      parsedIssueBody.create_announcement_user_dismissible.selected.includes(
-        'Enable'
-      )
-  })
+  if (!DEMO_MODE)
+    // https://docs.github.com/en/enterprise-cloud@latest/rest/announcement-banners/organizations#set-announcement-banner-for-organization
+    await octokit.request('PATCH /orgs/{org}/announcement', {
+      org: parsedIssueBody.create_announcement_organization,
+      announcement: parsedIssueBody.create_announcement_markdown,
+      expires_at: new Date(
+        parsedIssueBody.create_announcement_expiration_date
+      ).toISOString(),
+      user_dismissible:
+        parsedIssueBody.create_announcement_user_dismissible.selected.includes(
+          'Enable'
+        )
+    })
 
   // Add a comment to the issue
   await addComment(
