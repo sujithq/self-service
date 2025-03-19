@@ -1,10 +1,11 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { Octokit } from '@octokit/rest'
+import { DEMO_MODE } from './index.js'
 import { RenameRepositoryBody } from './types.js'
 import { addComment, closeIssue } from './utils/issues.js'
 
-export async function renameRepository(demoMode: boolean): Promise<void> {
+export async function renameRepository(): Promise<void> {
   // Get the IssueOps inputs
   const issueOpsOrganization: string = core.getInput('issue_ops_organization', {
     required: true
@@ -54,7 +55,7 @@ export async function renameRepository(demoMode: boolean): Promise<void> {
   core.info(`Repository Information: ${JSON.stringify(repo)}`)
 
   // Rename the repository (when not in demo mode)
-  if (repo.name !== parsedIssueBody.rename_repository_new_name && !demoMode)
+  if (repo.name !== parsedIssueBody.rename_repository_new_name && !DEMO_MODE)
     await octokit.repos.update({
       owner: parsedIssueBody.rename_repository_organization,
       repo: parsedIssueBody.rename_repository_current_name,

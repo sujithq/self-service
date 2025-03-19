@@ -34796,7 +34796,7 @@ async function closeIssue(octokit, organization, repository, issueNumber) {
     coreExports.info(`Closed Issue: ${organization}/${repository} #${issueNumber}`);
 }
 
-async function renameRepository(demoMode) {
+async function renameRepository() {
     // Get the IssueOps inputs
     const issueOpsOrganization = coreExports.getInput('issue_ops_organization', {
         required: true
@@ -34834,7 +34834,7 @@ async function renameRepository(demoMode) {
     });
     coreExports.info(`Repository Information: ${JSON.stringify(repo)}`);
     // Rename the repository (when not in demo mode)
-    if (repo.name !== parsedIssueBody.rename_repository_new_name && !demoMode)
+    if (repo.name !== parsedIssueBody.rename_repository_new_name && !DEMO_MODE)
         await octokit.repos.update({
             owner: parsedIssueBody.rename_repository_organization,
             repo: parsedIssueBody.rename_repository_current_name,
@@ -34851,19 +34851,21 @@ async function renameRepository(demoMode) {
     coreExports.info('Action Complete!');
 }
 
-let demoMode = false;
+const DEMO_MODE = githubExports.context.repo.owner === 'issue-ops' &&
+    githubExports.context.repo.repo === 'self-service'
+    ? true
+    : false;
+// If this action is running in the `issue-ops/self-service` repository, don't
+// actually run anything. This repository hosts the self-service page and
+// actions, but shouldn't actually run them.
+if (DEMO_MODE)
+    coreExports.info('Running in `issue-ops/self-service`...switching to demo mode!');
 // Get the action. This determines what function to run.
 const action = coreExports.getInput('action', { required: true })
     .replace('.yml', '');
-// If this actions is running in the `issue-ops/self-service` repository, don't
-// actually run anything. This repository hosts the self-service page and
-// actions, but shouldn't actually run them.
-if (githubExports.context.repo.owner === 'issue-ops' &&
-    githubExports.context.repo.repo === 'self-service') {
-    coreExports.info('Running in `issue-ops/self-service`...switching to demo mode!');
-    demoMode = true;
-}
 if (action === 'rename-repository')
-    await renameRepository(demoMode);
+    await renameRepository();
 else
     coreExports.setFailed(`Unknown Action: ${action}`);
+
+export { DEMO_MODE };
