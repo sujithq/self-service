@@ -2,6 +2,7 @@ name: '[IssueOps] Create an Organization Announcement Banner'
 description: Creates an organization announcement banner.
 title: '[IssueOps] Create an Organization Announcement Banner'
 labels:
+  - issue-ops
   - create-announcement
 body:
   - id: create_announcement_organization
