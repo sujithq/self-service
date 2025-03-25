@@ -1,9 +1,9 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { Octokit } from '@octokit/rest'
-import { DEMO_MODE } from './mode.js'
 import { RenameRepositoryBody } from './types.js'
 import { addComment, closeIssue } from './utils/issues.js'
+import { DEMO_MODE } from './utils/mode.js'
 
 export async function renameRepository(): Promise<void> {
   // Get the IssueOps inputs

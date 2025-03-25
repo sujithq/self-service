@@ -1,8 +1,8 @@
 import * as core from '@actions/core'
 import { createAnnouncement } from './create-announcement.js'
-import { DEMO_MODE } from './mode.js'
 import { renameRepository } from './rename-repository.js'
 import { Action } from './types.js'
+import { DEMO_MODE } from './utils/mode.js'
 
 // If this action is running in the `issue-ops/self-service` repository, don't
 // actually run anything. This repository hosts the self-service page and
