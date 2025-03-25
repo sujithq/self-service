@@ -1,6 +1,14 @@
 import { Checkboxes } from '@github/issue-parser'
 
-export type Action = 'create-announcement' | 'rename-repository'
+export type Action =
+  | 'archive-repository'
+  | 'create-announcement'
+  | 'rename-repository'
+
+export type ArchiveRepositoryBody = {
+  archive_repository_organization: string
+  archive_repository_name: string
+}
 
 export type CreateAnnouncementBody = {
   create_announcement_organization: string

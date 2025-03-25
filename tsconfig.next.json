@@ -20,10 +20,5 @@
     "postcss.config.mjs",
     "rollup.config.ts"
   ],
-  "include": [
-    "src",
-    "next-env.d.ts",
-    "next.config.ts",
-    ".next/types/**/*.ts"
-  ]
+  "include": ["src", "next-env.d.ts", "next.config.ts", ".next/types/**/*.ts"]
 }

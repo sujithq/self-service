@@ -34760,11 +34760,6 @@ const Octokit = Octokit$1.plugin(requestLog, legacyRestEndpointMethods, paginate
   }
 );
 
-const DEMO_MODE = githubExports.context.repo.owner === 'issue-ops' &&
-    githubExports.context.repo.repo === 'self-service'
-    ? true
-    : false;
-
 /**
  * Utility functions for working with issues
  */
@@ -34799,6 +34794,64 @@ async function closeIssue(octokit, organization, repository, issueNumber) {
         state: 'closed'
     });
     coreExports.info(`Closed Issue: ${organization}/${repository} #${issueNumber}`);
+}
+
+const DEMO_MODE = githubExports.context.repo.owner === 'issue-ops' &&
+    githubExports.context.repo.repo === 'self-service'
+    ? true
+    : false;
+
+async function archiveRepository() {
+    // Get the IssueOps inputs
+    const issueOpsOrganization = coreExports.getInput('issue_ops_organization', {
+        required: true
+    });
+    const issueOpsRepository = coreExports.getInput('issue_ops_repository', {
+        required: true
+    });
+    const issueNumber = parseInt(coreExports.getInput('issue_number', {
+        required: true
+    }), 10);
+    // Get the action inputs
+    const parsedIssueBody = JSON.parse(coreExports.getInput('parsed_issue_body', {
+        required: true
+    }));
+    coreExports.info('IssueOps Inputs');
+    coreExports.info(`  Organization: ${issueOpsOrganization}`);
+    coreExports.info(`  Repository: ${issueOpsRepository}`);
+    coreExports.info(`  Issue Number: ${issueNumber}`);
+    coreExports.info('Action Inputs');
+    coreExports.info(`  Organization: ${parsedIssueBody.archive_repository_organization}`);
+    coreExports.info(`  Repository: ${parsedIssueBody.archive_repository_name}`);
+    // If the organization name is not the same as the organization where this
+    // action is running, we need to use the enterprise token.
+    const octokit = new Octokit({
+        auth: parsedIssueBody.archive_repository_organization ===
+            githubExports.context.repo.owner
+            ? process.env.GH_TOKEN
+            : process.env.GH_ENTERPRISE_TOKEN
+    });
+    // Get the repository information
+    const { data: repo } = await octokit.repos.get({
+        owner: parsedIssueBody.archive_repository_organization,
+        repo: parsedIssueBody.archive_repository_name
+    });
+    coreExports.info(`Repository Information: ${JSON.stringify(repo)}`);
+    // Rename the repository (when not in demo mode)
+    if (!DEMO_MODE && repo.archived === false)
+        await octokit.repos.update({
+            owner: parsedIssueBody.archive_repository_organization,
+            repo: parsedIssueBody.archive_repository_name,
+            archived: true
+        });
+    // Add a comment to the issue
+    await addComment(octokit, issueOpsOrganization, issueOpsRepository, issueNumber, repo.archived === false
+        ? `Archived repository \`${parsedIssueBody.archive_repository_organization}/${parsedIssueBody.archive_repository_name}\``
+        : `Repository is already archived \`${parsedIssueBody.archive_repository_organization}/${parsedIssueBody.archive_repository_name}\``);
+    coreExports.info(`Archived Repository: ${parsedIssueBody.archive_repository_organization}/${parsedIssueBody.archive_repository_name}`);
+    // Close the issue
+    await closeIssue(octokit, issueOpsOrganization, issueOpsRepository, issueNumber);
+    coreExports.info('Action Complete!');
 }
 
 async function createAnnouncement() {
@@ -34914,7 +34967,9 @@ if (DEMO_MODE)
 // Get the action. This determines what function to run.
 const action = coreExports.getInput('action', { required: true })
     .replace('.yml', '');
-if (action === 'create-announcement')
+if (action === 'archive-repository')
+    await archiveRepository();
+else if (action === 'create-announcement')
     await createAnnouncement();
 else if (action === 'rename-repository')
     await renameRepository();

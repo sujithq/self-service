@@ -29,12 +29,13 @@
     "coverage": "npx make-coverage-badge --output-path ./badges/coverage.svg",
     "format:write": "npx prettier --write .",
     "format:check": "npx prettier --check .",
-    "lint": "npx eslint .",
+    "lint": "npm run ts:lint && npm run next:lint",
     "next:build": "next build",
     "next:dev": "next dev --turbopack",
     "next:lint": "next lint",
     "package": "rm -rf dist/ && npx rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript",
     "test": "NODE_OPTIONS=--experimental-vm-modules NODE_NO_WARNINGS=1 npx jest",
+    "ts:lint": "npx eslint .",
     "all": "npm run format:write && npm run lint && npm run test && npm run coverage && npm run package"
   },
   "license": "MIT",
@@ -115,6 +116,7 @@
     "tailwindcss": "^4.0.14",
     "ts-jest": "^29.2.6",
     "ts-jest-resolver": "^2.0.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.8.2"
   }
 }

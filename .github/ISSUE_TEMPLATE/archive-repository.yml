@@ -1,0 +1,23 @@
+name: '[IssueOps] Archive a repository'
+description: Archive a repository in your organization.
+title: '[IssueOps] Archive a repository'
+labels:
+  - issue-ops
+  - archive-repository
+body:
+  - id: archive_repository_organization
+    type: input
+    attributes:
+      label: Organization
+      description: The GitHub organization where the repository is located
+      placeholder: github
+    validations:
+      required: true
+  - id: archive_repository_name
+    type: input
+    attributes:
+      label: Repository
+      description: The GitHub repository's name
+      placeholder: monarepo
+    validations:
+      required: true
