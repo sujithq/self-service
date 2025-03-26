@@ -27,6 +27,9 @@ export default async (field) => {
         : process.env.GH_ENTERPRISE_TOKEN
   })
 
+  console.log(issue.github_organization)
+  console.log(github.context.repo.owner)
+
   try {
     // Check if the repository exists
     await octokit.rest.repos.get({

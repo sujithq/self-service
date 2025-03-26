@@ -111,6 +111,9 @@ jobs:
       - name: Validate Request
         id: validate
         uses: issue-ops/validator@v3
+        env:
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+          GH_ENTERPRISE_TOKEN: ${{ secrets.GH_ENTERPRISE_TOKEN }}
         with:
           add-comment: true
           github-token: ${{ steps.token.outputs.token }}
