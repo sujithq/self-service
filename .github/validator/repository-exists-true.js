@@ -15,9 +15,6 @@ export default async (field) => {
     slugify: true
   })
 
-  console.log(issue)
-  console.log(field)
-
   // If the organization name is not the same as the organization where this
   // action is running, we need to use the enterprise token.
   const octokit = new Octokit({
@@ -26,9 +23,6 @@ export default async (field) => {
         ? process.env.GH_TOKEN
         : process.env.GH_ENTERPRISE_TOKEN
   })
-
-  console.log(issue.github_organization)
-  console.log(github.context.repo.owner)
 
   try {
     // Check if the repository exists
