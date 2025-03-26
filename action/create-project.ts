@@ -2,47 +2,31 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { Octokit } from '@octokit/rest'
 import { CreateProjectBody } from './types.js'
+import { getIssueOpsInputs } from './utils/inputs.js'
 import { addComment, closeIssue } from './utils/issues.js'
 import { DEMO_MODE } from './utils/mode.js'
 
 export async function createProject(): Promise<void> {
-  // Get the IssueOps inputs
-  const issueOpsOrganization: string = core.getInput('issue_ops_organization', {
-    required: true
-  })
-  const issueOpsRepository: string = core.getInput('issue_ops_repository', {
-    required: true
-  })
-  const issueNumber: number = parseInt(
-    core.getInput('issue_number', {
-      required: true
-    }),
-    10
-  )
+  const issueOps = getIssueOpsInputs()
 
   // Get the action inputs
-  const parsedIssueBody: CreateProjectBody = JSON.parse(
+  const issue: CreateProjectBody = JSON.parse(
     core.getInput('parsed_issue_body', {
       required: true
     })
   )
 
-  core.info('IssueOps Inputs')
-  core.info(`  Organization: ${issueOpsOrganization}`)
-  core.info(`  Repository: ${issueOpsRepository}`)
-  core.info(`  Issue Number: ${issueNumber}`)
-
   core.info('Action Inputs')
-  core.info(`  Organization: ${parsedIssueBody.create_project_organization}`)
-  core.info(`  Project Name: ${parsedIssueBody.create_project_title}`)
-  core.info(`  Team: ${parsedIssueBody.create_project_team}`)
-  core.info(`  Repository: ${parsedIssueBody.create_project_repository}`)
+  core.info(`  Organization: ${issue.create_project_organization}`)
+  core.info(`  Project Name: ${issue.create_project_title}`)
+  core.info(`  Team: ${issue.create_project_team}`)
+  core.info(`  Repository: ${issue.create_project_repository}`)
 
   // If the organization name is not the same as the organization where this
   // action is running, we need to use the enterprise token.
   const octokit = new Octokit({
     auth:
-      parsedIssueBody.create_project_organization === github.context.repo.owner
+      issue.create_project_organization === github.context.repo.owner
         ? process.env.GH_TOKEN
         : process.env.GH_ENTERPRISE_TOKEN
   })
@@ -50,23 +34,23 @@ export async function createProject(): Promise<void> {
   // Get the organization ID
   const ownerId = (
     await octokit.rest.orgs.get({
-      org: parsedIssueBody.create_project_organization
+      org: issue.create_project_organization
     })
   ).data.node_id
 
   // Get the repository ID
   const repoId = (
     await octokit.rest.repos.get({
-      owner: parsedIssueBody.create_project_organization,
-      repo: parsedIssueBody.create_project_repository
+      owner: issue.create_project_organization,
+      repo: issue.create_project_repository
     })
   ).data.node_id
 
   // Get the team ID
   const teamId = (
     await octokit.rest.teams.getByName({
-      org: parsedIssueBody.create_project_organization,
-      team_slug: parsedIssueBody.create_project_team
+      org: issue.create_project_organization,
+      team_slug: issue.create_project_team
     })
   ).data.id
 
@@ -76,8 +60,11 @@ export async function createProject(): Promise<void> {
   core.info(`  Team ID: ${teamId}`)
 
   // Create the project (when not in demo mode)
-  if (!DEMO_MODE)
-    await octokit.graphql(
+  let projectNumber = 3 // Fall back to 3 for demo mode
+  if (!DEMO_MODE) {
+    const response: {
+      data: { createProjectV2: { projectV2: { number: number } } }
+    } = await octokit.graphql(
       `
         mutation($ownerId: ID!, $repoId: ID!, $teamId: ID!, $title: String!) {
           createProjectV2(
@@ -89,7 +76,7 @@ export async function createProject(): Promise<void> {
             }
           ) {
             projectV2 {
-              id
+              number
             }
           }
         }
@@ -98,28 +85,27 @@ export async function createProject(): Promise<void> {
         ownerId,
         repoId,
         teamId,
-        title: parsedIssueBody.create_project_title
+        title: issue.create_project_title
       }
     )
+
+    projectNumber = response.data.createProjectV2.projectV2.number
+  }
 
   // Add a comment to the issue
   await addComment(
     octokit,
-    issueOpsOrganization,
-    issueOpsRepository,
-    issueNumber,
-    `Created project \`${parsedIssueBody.create_project_title}`
+    issueOps.organization,
+    issueOps.repository,
+    issueOps.issueNumber,
+    `Created project [\`${issue.create_project_title}\`](https://github.com/orgs/${issue.create_project_organization}/projects/${projectNumber})`
   )
-
-  core.info(`Created Project: ${parsedIssueBody.create_project_title}`)
 
   // Close the issue
   await closeIssue(
     octokit,
-    issueOpsOrganization,
-    issueOpsRepository,
-    issueNumber
+    issueOps.organization,
+    issueOps.repository,
+    issueOps.issueNumber
   )
-
-  core.info('Action Complete!')
 }

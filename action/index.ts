@@ -34,3 +34,5 @@ else if (action === 'create-repository') await createRepository()
 else if (action === 'rename-repository') await renameRepository()
 else if (action === 'unarchive-repository') await unarchiveRepository()
 else core.setFailed(`Unknown Action: ${action}`)
+
+core.info('Action Complete!')

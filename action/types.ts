@@ -11,6 +11,12 @@ export type Action =
   | 'rename-repository'
   | 'unarchive-repository'
 
+export type IssueOpsInputs = {
+  organization: string
+  repository: string
+  issueNumber: number
+}
+
 export type ArchiveRepositoryBody = {
   archive_repository_organization: string
   archive_repository_name: string
