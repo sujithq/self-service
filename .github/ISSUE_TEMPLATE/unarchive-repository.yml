@@ -1,0 +1,23 @@
+name: '[IssueOps] Unarchive a repository'
+description: Unarchive a repository in your organization.
+title: '[IssueOps] Unarchive a repository'
+labels:
+  - issue-ops
+  - unarchive-repository
+body:
+  - id: unarchive_repository_organization
+    type: input
+    attributes:
+      label: Organization
+      description: The GitHub organization where the repository is located
+      placeholder: github
+    validations:
+      required: true
+  - id: unarchive_repository_name
+    type: input
+    attributes:
+      label: Repository
+      description: The GitHub repository's name
+      placeholder: monarepo
+    validations:
+      required: true

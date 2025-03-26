@@ -4,6 +4,7 @@ export type Action =
   | 'archive-repository'
   | 'create-announcement'
   | 'rename-repository'
+  | 'unarchive-repository'
 
 export type ArchiveRepositoryBody = {
   archive_repository_organization: string
@@ -21,4 +22,9 @@ export type RenameRepositoryBody = {
   rename_repository_organization: string
   rename_repository_current_name: string
   rename_repository_new_name: string
+}
+
+export type UnarchiveRepositoryBody = {
+  unarchive_repository_organization: string
+  unarchive_repository_name: string
 }

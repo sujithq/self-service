@@ -3,6 +3,7 @@ import { archiveRepository } from './archive-repository.js'
 import { createAnnouncement } from './create-announcement.js'
 import { renameRepository } from './rename-repository.js'
 import { Action } from './types.js'
+import { unarchiveRepository } from './unarchive-repository.js'
 import { DEMO_MODE } from './utils/mode.js'
 
 // If this action is running in the `issue-ops/self-service` repository, don't
@@ -19,4 +20,5 @@ const action: Action = core
 if (action === 'archive-repository') await archiveRepository()
 else if (action === 'create-announcement') await createAnnouncement()
 else if (action === 'rename-repository') await renameRepository()
+else if (action === 'unarchive-repository') await unarchiveRepository()
 else core.setFailed(`Unknown Action: ${action}`)
