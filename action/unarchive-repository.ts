@@ -4,7 +4,7 @@ import { Octokit } from '@octokit/rest'
 import { UnarchiveRepositoryBody } from './types.js'
 import { getIssueOpsInputs } from './utils/inputs.js'
 import { addComment, closeIssue } from './utils/issues.js'
-import { DEMO_MODE } from './utils/mode.js'
+// import { DEMO_MODE } from './utils/mode.js'
 
 export async function unarchiveRepository(): Promise<void> {
   const issueOps = getIssueOpsInputs()
@@ -38,12 +38,12 @@ export async function unarchiveRepository(): Promise<void> {
 
   // Unarchive the repository (when not in demo mode and the repository is
   // currently archived)
-  if (!DEMO_MODE && repo.archived === true)
-    await octokit.repos.update({
-      owner: issue.unarchive_repository_organization,
-      repo: issue.unarchive_repository_name,
-      archived: false
-    })
+  // if (!DEMO_MODE && repo.archived === true)
+  await octokit.repos.update({
+    owner: issue.unarchive_repository_organization,
+    repo: issue.unarchive_repository_name,
+    archived: false
+  })
 
   // Add a comment to the issue
   await addComment(
