@@ -87,7 +87,7 @@ jobs:
         id: build
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run build
+        run: npm run next:build
 
       - name: Upload Pages Artifact
         id: upload
