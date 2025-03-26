@@ -4,7 +4,7 @@ import { Octokit } from '@octokit/rest'
 import { ArchiveRepositoryBody } from './types.js'
 import { getIssueOpsInputs } from './utils/inputs.js'
 import { addComment, closeIssue } from './utils/issues.js'
-// import { DEMO_MODE } from './utils/mode.js'
+import { DEMO_MODE } from './utils/mode.js'
 
 export async function archiveRepository(): Promise<void> {
   const issueOps = getIssueOpsInputs()
@@ -37,12 +37,12 @@ export async function archiveRepository(): Promise<void> {
   core.info(`Repository Information: ${JSON.stringify(repo)}`)
 
   // Rename the repository (when not in demo mode)
-  // if (!DEMO_MODE && repo.archived === false)
-  await octokit.repos.update({
-    owner: issue.archive_repository_organization,
-    repo: issue.archive_repository_name,
-    archived: true
-  })
+  if (!DEMO_MODE && repo.archived === false)
+    await octokit.repos.update({
+      owner: issue.archive_repository_organization,
+      repo: issue.archive_repository_name,
+      archived: true
+    })
 
   // Add a comment to the issue
   await addComment(

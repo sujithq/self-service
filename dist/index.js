@@ -34817,7 +34817,14 @@ async function closeIssue(octokit, organization, repository, issueNumber) {
     coreExports.info(`Closed Issue: ${organization}/${repository} #${issueNumber}`);
 }
 
-// import { DEMO_MODE } from './utils/mode.js'
+/**
+ * Flag to indicate if the action is running in demo mode.
+ *
+ * This is used to prevent any actual changes from being made when the action is
+ * running in the `issue-ops` organization.
+ */
+const DEMO_MODE = githubExports.context.repo.owner === 'issue-ops' ? true : false;
+
 async function archiveRepository() {
     const issueOps = getIssueOpsInputs();
     // Get the action inputs
@@ -34841,12 +34848,12 @@ async function archiveRepository() {
     });
     coreExports.info(`Repository Information: ${JSON.stringify(repo)}`);
     // Rename the repository (when not in demo mode)
-    // if (!DEMO_MODE && repo.archived === false)
-    await octokit.repos.update({
-        owner: issue.archive_repository_organization,
-        repo: issue.archive_repository_name,
-        archived: true
-    });
+    if (!DEMO_MODE && repo.archived === false)
+        await octokit.repos.update({
+            owner: issue.archive_repository_organization,
+            repo: issue.archive_repository_name,
+            archived: true
+        });
     // Add a comment to the issue
     await addComment(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber, repo.archived === false
         ? `Archived repository \`${issue.archive_repository_organization}/${issue.archive_repository_name}\``
@@ -34854,14 +34861,6 @@ async function archiveRepository() {
     // Close the issue
     await closeIssue(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber);
 }
-
-/**
- * Flag to indicate if the action is running in demo mode.
- *
- * This is used to prevent any actual changes from being made when the action is
- * running in the `issue-ops` organization.
- */
-const DEMO_MODE = githubExports.context.repo.owner === 'issue-ops' ? true : false;
 
 // TODO: If setting to public, this should require approval.
 async function changeRepositoryVisibility() {
@@ -35163,7 +35162,6 @@ async function renameRepository() {
     await closeIssue(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber);
 }
 
-// import { DEMO_MODE } from './utils/mode.js'
 async function unarchiveRepository() {
     const issueOps = getIssueOpsInputs();
     // Get the action inputs
@@ -35188,12 +35186,12 @@ async function unarchiveRepository() {
     coreExports.info(`Repository Information: ${JSON.stringify(repo)}`);
     // Unarchive the repository (when not in demo mode and the repository is
     // currently archived)
-    // if (!DEMO_MODE && repo.archived === true)
-    await octokit.repos.update({
-        owner: issue.unarchive_repository_organization,
-        repo: issue.unarchive_repository_name,
-        archived: false
-    });
+    if (!DEMO_MODE && repo.archived === true)
+        await octokit.repos.update({
+            owner: issue.unarchive_repository_organization,
+            repo: issue.unarchive_repository_name,
+            archived: false
+        });
     // Add a comment to the issue
     await addComment(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber, repo.archived === false
         ? `Unarchived repository \`${issue.unarchive_repository_organization}/${issue.unarchive_repository_name}\``
