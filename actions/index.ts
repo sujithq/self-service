@@ -1,6 +1,7 @@
 import * as core from '@actions/core'
 import { archiveRepository } from './archive-repository.js'
 import { changeRepositoryVisibility } from './change-repository-visibility.js'
+import { createActionsVariable } from './create-actions-variable.js'
 import { createAnnouncement } from './create-announcement.js'
 import { renameRepository } from './rename-repository.js'
 import { Action } from './types.js'
@@ -21,6 +22,7 @@ const action: Action = core
 if (action === 'archive-repository') await archiveRepository()
 else if (action === 'change-repository-visibility')
   await changeRepositoryVisibility()
+else if (action === 'create-actions-variable') await createActionsVariable()
 else if (action === 'create-announcement') await createAnnouncement()
 else if (action === 'rename-repository') await renameRepository()
 else if (action === 'unarchive-repository') await unarchiveRepository()

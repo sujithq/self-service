@@ -1,5 +1,32 @@
 validators:
+  # archive-repository
+  - field: archive_repository_name
+    script: repository-exists-true.js
+
+  # change-repository-visibility
+  - field: change_repository_visibility_name
+    script: repository-exists-true.js
+  - field: change_repository_visibility_visibility
+    script: repository-visibility-valid-true.js
+
+  # create-actions-variable
+  - field: create_actions_variable_name
+    script: actions-variable-name-valid-true.js
+  - field: create_actions_variable_visibility
+    script: actions-variable-visibility-valid-true.js
+  - field: create_actions_variable_repository_names
+    script: repositories-exist-true.js
+
+  # create-announcement
   - field: create_announcement_expiration_date
     script: date-valid-true.js
+
+  # rename-repository
+  - field: rename_repository_current_name
+    script: repository-exists-true.js
   - field: rename_repository_new_name
     script: repository-name-valid-true.js
+
+  # unarchive-repository
+  - field: unarchive_repository_name
+    script: repository-exists-true.js

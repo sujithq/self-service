@@ -1,0 +1,54 @@
+name: '[IssueOps] Create an organization Actions variable'
+description: Create a GitHub Actions variable in your organization.
+title: '[IssueOps] Create an organization Actions variable'
+labels:
+  - issue-ops
+  - create-actions-variable
+body:
+  - id: create_actions_variable_organization
+    type: input
+    attributes:
+      label: Organization
+      description: The GitHub organization where the varaible will be located
+      placeholder: github
+    validations:
+      required: true
+  - type: input
+    id: create_actions_variable_name
+    attributes:
+      label: Variable Name
+      description:
+        The name of the variable to create. Must not contain special characters
+        or spaces.
+      placeholder: SOME_VARIABLE_NAME
+    validations:
+      required: true
+  - id: create_actions_variable_value
+    type: input
+    attributes:
+      label: Value
+      description: Variable Value
+      placeholder: SOME_VALUE
+    validations:
+      required: true
+  - id: create_actions_variable_visibility
+    type: dropdown
+    attributes:
+      label: Visibility
+      description: Variable Visibility
+      options:
+        - all
+        - private
+        - selected
+  - id: create_actions_variable_repository_names
+    type: textarea
+    attributes:
+      label: Repository Name(s)
+      description:
+        If you choose to share this variable with selected repositories, enter
+        the name of each repository that will have access to the organization
+        variable.
+      placeholder: |
+        my-repo-1
+        my-repo-2
+        my-repo-3

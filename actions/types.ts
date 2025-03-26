@@ -4,6 +4,7 @@ export type Action =
   | 'archive-repository'
   | 'change-repository-visibility'
   | 'create-announcement'
+  | 'create-actions-variable'
   | 'rename-repository'
   | 'unarchive-repository'
 
@@ -15,13 +16,15 @@ export type ArchiveRepositoryBody = {
 export type ChangeRepositoryVisibilityBody = {
   change_repository_visibility_organization: string
   change_repository_visibility_name: string
-  change_repository_visibility_visibility:
-    | 'internal'
-    | 'Internal'
-    | 'public'
-    | 'Public'
-    | 'private'
-    | 'Private'
+  change_repository_visibility_visibility: 'internal' | 'public' | 'private'
+}
+
+export type CreateActionsVariableBody = {
+  create_actions_variable_organization: string
+  create_actions_variable_name: string
+  create_actions_variable_value: string
+  create_actions_variable_visibility: 'all' | 'private' | 'selected'
+  create_actions_variable_repository_names: string
 }
 
 export type CreateAnnouncementBody = {

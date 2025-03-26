@@ -1,5 +1,5 @@
 /**
- * Passes validation if the repository does not exist.
+ * Passes validation if all the repositories exist.
  *
  * @param {string | string[] | {label: string; required: boolean }} field Input field
  * @returns {Promise<string>} An error message or `'success'`
@@ -23,16 +23,25 @@ export default async (field) => {
         : process.env.GH_ENTERPRISE_TOKEN
   })
 
-  try {
-    // Check if the repository exists
-    await octokit.rest.repos.get({
-      owner: organization,
-      repo: field
-    })
+  // Split the field into an array (by newlines and commas) and remove any
+  // whitespace or empty strings.
+  const repositories = field
+    .split(/[\s,\n]+/)
+    .filter((repository) => repository.trim() !== '')
 
-    return `Repository \`${field}\` already exists`
-  } catch (error) {
-    if (error.status === 404) return 'success'
-    else throw error
+  for (const repository of repositories) {
+    try {
+      // Check if the repository exists
+      await octokit.rest.repos.get({
+        owner: organization,
+        repo: repository
+      })
+    } catch (error) {
+      if (error.status === 404)
+        return `Repository \`${repository}\` does not exist`
+      else throw error
+    }
   }
+
+  return 'success'
 }
