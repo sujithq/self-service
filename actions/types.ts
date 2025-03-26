@@ -2,6 +2,7 @@ import { Checkboxes } from '@github/issue-parser'
 
 export type Action =
   | 'archive-repository'
+  | 'change-repository-visibility'
   | 'create-announcement'
   | 'rename-repository'
   | 'unarchive-repository'
@@ -9,6 +10,18 @@ export type Action =
 export type ArchiveRepositoryBody = {
   archive_repository_organization: string
   archive_repository_name: string
+}
+
+export type ChangeRepositoryVisibilityBody = {
+  change_repository_visibility_organization: string
+  change_repository_visibility_name: string
+  change_repository_visibility_visibility:
+    | 'internal'
+    | 'Internal'
+    | 'public'
+    | 'Public'
+    | 'private'
+    | 'Private'
 }
 
 export type CreateAnnouncementBody = {

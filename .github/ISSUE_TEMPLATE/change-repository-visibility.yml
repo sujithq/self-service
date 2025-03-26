@@ -1,0 +1,34 @@
+name: '[IssueOps] Change repository visibility'
+description: Change the visibility of a repository in your organization.
+title: '[IssueOps] Change repository visibility'
+labels:
+  - issue-ops
+  - change-repository-visibility
+body:
+  - id: change_repository_visibility_organization
+    type: input
+    attributes:
+      label: Organization
+      description: The GitHub organization where the repository is located
+      placeholder: github
+    validations:
+      required: true
+  - id: change_repository_visibility_name
+    type: input
+    attributes:
+      label: Repository
+      description: The GitHub repository's name
+      placeholder: monarepo
+    validations:
+      required: true
+  - id: change_repository_visibility_visibility
+    type: dropdown
+    attributes:
+      label: Visibility
+      description: The visiblity of the repository
+      options:
+        - internal
+        - private
+        - public
+    validations:
+      required: true
