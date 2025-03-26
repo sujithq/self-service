@@ -12,6 +12,8 @@ export default async (field) => {
   // Since this requires additional information from the issue, we need to get
   // and parse the issue body.
   const issue = parseIssue(github.context.payload.issue.body)
+  console.log(issue)
+  console.log(field)
 
   // If the organization name is not the same as the organization where this
   // action is running, we need to use the enterprise token.
