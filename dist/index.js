@@ -34760,6 +34760,27 @@ const Octokit = Octokit$1.plugin(requestLog, legacyRestEndpointMethods, paginate
   }
 );
 
+function getIssueOpsInputs() {
+    const organization = coreExports.getInput('issue_ops_organization', {
+        required: true
+    });
+    const repository = coreExports.getInput('issue_ops_repository', {
+        required: true
+    });
+    const issueNumber = parseInt(coreExports.getInput('issue_number', {
+        required: true
+    }), 10);
+    coreExports.info('IssueOps Inputs');
+    coreExports.info(`  Organization: ${organization}`);
+    coreExports.info(`  Repository: ${repository}`);
+    coreExports.info(`  Issue Number: ${issueNumber}`);
+    return {
+        organization,
+        repository,
+        issueNumber
+    };
+}
+
 /**
  * Utility functions for working with issues
  */
@@ -34802,87 +34823,153 @@ const DEMO_MODE = githubExports.context.repo.owner === 'issue-ops' &&
     : false;
 
 async function archiveRepository() {
-    // Get the IssueOps inputs
-    const issueOpsOrganization = coreExports.getInput('issue_ops_organization', {
-        required: true
-    });
-    const issueOpsRepository = coreExports.getInput('issue_ops_repository', {
-        required: true
-    });
-    const issueNumber = parseInt(coreExports.getInput('issue_number', {
-        required: true
-    }), 10);
+    const issueOps = getIssueOpsInputs();
     // Get the action inputs
-    const parsedIssueBody = JSON.parse(coreExports.getInput('parsed_issue_body', {
+    const issue = JSON.parse(coreExports.getInput('parsed_issue_body', {
         required: true
     }));
-    coreExports.info('IssueOps Inputs');
-    coreExports.info(`  Organization: ${issueOpsOrganization}`);
-    coreExports.info(`  Repository: ${issueOpsRepository}`);
-    coreExports.info(`  Issue Number: ${issueNumber}`);
     coreExports.info('Action Inputs');
-    coreExports.info(`  Organization: ${parsedIssueBody.archive_repository_organization}`);
-    coreExports.info(`  Repository: ${parsedIssueBody.archive_repository_name}`);
+    coreExports.info(`  Organization: ${issue.archive_repository_organization}`);
+    coreExports.info(`  Repository: ${issue.archive_repository_name}`);
     // If the organization name is not the same as the organization where this
     // action is running, we need to use the enterprise token.
     const octokit = new Octokit({
-        auth: parsedIssueBody.archive_repository_organization ===
+        auth: issue.archive_repository_organization === githubExports.context.repo.owner
+            ? process.env.GH_TOKEN
+            : process.env.GH_ENTERPRISE_TOKEN
+    });
+    // Get the repository information
+    const { data: repo } = await octokit.repos.get({
+        owner: issue.archive_repository_organization,
+        repo: issue.archive_repository_name
+    });
+    coreExports.info(`Repository Information: ${JSON.stringify(repo)}`);
+    // Rename the repository (when not in demo mode)
+    if (!DEMO_MODE && repo.archived === false)
+        await octokit.repos.update({
+            owner: issue.archive_repository_organization,
+            repo: issue.archive_repository_name,
+            archived: true
+        });
+    // Add a comment to the issue
+    await addComment(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber, repo.archived === false
+        ? `Archived repository \`${issue.archive_repository_organization}/${issue.archive_repository_name}\``
+        : `Repository is already archived \`${issue.archive_repository_organization}/${issue.archive_repository_name}\``);
+    // Close the issue
+    await closeIssue(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber);
+}
+
+// TODO: If setting to public, this should require approval.
+async function changeRepositoryVisibility() {
+    const issueOps = getIssueOpsInputs();
+    // Get the action inputs
+    const issue = JSON.parse(coreExports.getInput('parsed_issue_body', {
+        required: true
+    }));
+    coreExports.info('Action Inputs');
+    coreExports.info(`  Organization: ${issue.change_repository_visibility_organization}`);
+    coreExports.info(`  Repository: ${issue.change_repository_visibility_name}`);
+    coreExports.info(`  Visibility: ${issue.change_repository_visibility_visibility}`);
+    // If the organization name is not the same as the organization where this
+    // action is running, we need to use the enterprise token.
+    const octokit = new Octokit({
+        auth: issue.change_repository_visibility_organization ===
             githubExports.context.repo.owner
             ? process.env.GH_TOKEN
             : process.env.GH_ENTERPRISE_TOKEN
     });
     // Get the repository information
     const { data: repo } = await octokit.repos.get({
-        owner: parsedIssueBody.archive_repository_organization,
-        repo: parsedIssueBody.archive_repository_name
+        owner: issue.change_repository_visibility_organization,
+        repo: issue.change_repository_visibility_name
     });
     coreExports.info(`Repository Information: ${JSON.stringify(repo)}`);
     // Rename the repository (when not in demo mode)
     if (!DEMO_MODE && repo.archived === false)
         await octokit.repos.update({
-            owner: parsedIssueBody.archive_repository_organization,
-            repo: parsedIssueBody.archive_repository_name,
-            archived: true
+            owner: issue.change_repository_visibility_organization,
+            repo: issue.change_repository_visibility_name,
+            visibility: 
+            // Note: The `internal` visibility option is not included in the
+            // TypeScript type definition for the `repos.update` method.
+            issue.change_repository_visibility_visibility.toLowerCase()
         });
     // Add a comment to the issue
-    await addComment(octokit, issueOpsOrganization, issueOpsRepository, issueNumber, repo.archived === false
-        ? `Archived repository \`${parsedIssueBody.archive_repository_organization}/${parsedIssueBody.archive_repository_name}\``
-        : `Repository is already archived \`${parsedIssueBody.archive_repository_organization}/${parsedIssueBody.archive_repository_name}\``);
-    coreExports.info(`Archived Repository: ${parsedIssueBody.archive_repository_organization}/${parsedIssueBody.archive_repository_name}`);
+    await addComment(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber, repo.archived === false
+        ? `Set repository \`${issue.change_repository_visibility_organization}/${issue.change_repository_visibility_name}\` to \`${issue.change_repository_visibility_visibility}\` visibility`
+        : `Repository \`${issue.change_repository_visibility_organization}/${issue.change_repository_visibility_name}\` is already \`${issue.change_repository_visibility_visibility}\` visibility`);
     // Close the issue
-    await closeIssue(octokit, issueOpsOrganization, issueOpsRepository, issueNumber);
-    coreExports.info('Action Complete!');
+    await closeIssue(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber);
 }
 
-async function createAnnouncement() {
-    // Get the IssueOps inputs
-    const issueOpsOrganization = coreExports.getInput('issue_ops_organization', {
-        required: true
-    });
-    const issueOpsRepository = coreExports.getInput('issue_ops_repository', {
-        required: true
-    });
-    const issueNumber = parseInt(coreExports.getInput('issue_number', {
-        required: true
-    }), 10);
+async function createActionsVariable() {
+    const issueOps = getIssueOpsInputs();
     // Get the action inputs
-    const parsedIssueBody = JSON.parse(coreExports.getInput('parsed_issue_body', {
+    const issue = JSON.parse(coreExports.getInput('parsed_issue_body', {
         required: true
     }));
-    coreExports.info('IssueOps Inputs');
-    coreExports.info(`  Organization: ${issueOpsOrganization}`);
-    coreExports.info(`  Repository: ${issueOpsRepository}`);
-    coreExports.info(`  Issue Number: ${issueNumber}`);
+    const repositories = issue.create_actions_variable_repository_names
+        .split(/[\s,\n]+/)
+        .filter((repository) => repository.trim() !== '');
     coreExports.info('Action Inputs');
-    coreExports.info(`  Organization: ${parsedIssueBody.create_announcement_organization}`);
-    coreExports.info(`  Expiration Date: ${parsedIssueBody.create_announcement_expiration_date}`);
-    coreExports.info(`  User Dismissible: ${parsedIssueBody.create_announcement_user_dismissible}`);
-    coreExports.info(`  Markdown: ${parsedIssueBody.create_announcement_markdown}`);
+    coreExports.info(`  Organization: ${issue.create_actions_variable_organization}`);
+    coreExports.info(`  Variable Name: ${issue.create_actions_variable_name}`);
+    coreExports.info(`  Variable Value: ${issue.create_actions_variable_value}`);
+    coreExports.info(`  Visibility: ${issue.create_actions_variable_visibility}`);
+    coreExports.info(`  Repositories: ${repositories.join(', ')}`);
     // If the organization name is not the same as the organization where this
     // action is running, we need to use the enterprise token.
     const octokit = new Octokit({
-        auth: parsedIssueBody.create_announcement_organization ===
-            githubExports.context.repo.owner
+        auth: issue.create_actions_variable_organization === githubExports.context.repo.owner
+            ? process.env.GH_TOKEN
+            : process.env.GH_ENTERPRISE_TOKEN
+    });
+    // If the visibility is 'selected', we need to get the repository IDs.
+    const repositoryIds = await Promise.all(repositories.map(async (repo) => {
+        const { data: repoData } = await octokit.rest.repos.get({
+            owner: issue.create_actions_variable_organization,
+            repo
+        });
+        return repoData.id;
+    }));
+    // Create the variable (when not in demo mode)
+    if (!DEMO_MODE)
+        if (issue.create_actions_variable_visibility === 'selected')
+            await octokit.rest.actions.createOrgVariable({
+                org: issue.create_actions_variable_organization,
+                name: issue.create_actions_variable_name,
+                value: issue.create_actions_variable_value,
+                visibility: issue.create_actions_variable_visibility,
+                selected_repository_ids: repositoryIds
+            });
+        else
+            await octokit.rest.actions.createOrgVariable({
+                org: issue.create_actions_variable_organization,
+                name: issue.create_actions_variable_name,
+                value: issue.create_actions_variable_value,
+                visibility: issue.create_actions_variable_visibility
+            });
+    // Add a comment to the issue
+    await addComment(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber, `Created organization variable [\`${issue.create_actions_variable_name}\`](https://github.com/organizations/${issue.create_actions_variable_organization}/settings/variables/actions)`);
+    // Close the issue
+    await closeIssue(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber);
+}
+
+async function createAnnouncement() {
+    const issueOps = getIssueOpsInputs();
+    // Get the action inputs
+    const issue = JSON.parse(coreExports.getInput('parsed_issue_body', {
+        required: true
+    }));
+    coreExports.info('Action Inputs');
+    coreExports.info(`  Organization: ${issue.create_announcement_organization}`);
+    coreExports.info(`  Expiration Date: ${issue.create_announcement_expiration_date}`);
+    coreExports.info(`  User Dismissible: ${issue.create_announcement_user_dismissible}`);
+    coreExports.info(`  Markdown: ${issue.create_announcement_markdown}`);
+    // If the organization name is not the same as the organization where this
+    // action is running, we need to use the enterprise token.
+    const octokit = new Octokit({
+        auth: issue.create_announcement_organization === githubExports.context.repo.owner
             ? process.env.GH_TOKEN
             : process.env.GH_ENTERPRISE_TOKEN
     });
@@ -34890,73 +34977,224 @@ async function createAnnouncement() {
     if (!DEMO_MODE)
         // https://docs.github.com/en/enterprise-cloud@latest/rest/announcement-banners/organizations#set-announcement-banner-for-organization
         await octokit.request('PATCH /orgs/{org}/announcement', {
-            org: parsedIssueBody.create_announcement_organization,
-            announcement: parsedIssueBody.create_announcement_markdown,
-            expires_at: new Date(parsedIssueBody.create_announcement_expiration_date).toISOString(),
-            user_dismissible: parsedIssueBody.create_announcement_user_dismissible.selected.includes('Enable')
+            org: issue.create_announcement_organization,
+            announcement: issue.create_announcement_markdown,
+            expires_at: new Date(issue.create_announcement_expiration_date).toISOString(),
+            user_dismissible: issue.create_announcement_user_dismissible.selected.includes('Enable')
         });
     // Add a comment to the issue
-    await addComment(octokit, issueOpsOrganization, issueOpsRepository, issueNumber, `Created announcement expiring \`${parsedIssueBody.create_announcement_expiration_date}`);
-    coreExports.info(`Created Announcement Expiring: ${parsedIssueBody.create_announcement_expiration_date}`);
+    await addComment(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber, `Created announcement expiring \`${issue.create_announcement_expiration_date}`);
     // Close the issue
-    await closeIssue(octokit, issueOpsOrganization, issueOpsRepository, issueNumber);
-    coreExports.setOutput('expiration_date', parsedIssueBody.create_announcement_expiration_date);
-    coreExports.info('Action Complete!');
+    await closeIssue(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber);
 }
 
-async function renameRepository() {
-    // Get the IssueOps inputs
-    const issueOpsOrganization = coreExports.getInput('issue_ops_organization', {
-        required: true
-    });
-    const issueOpsRepository = coreExports.getInput('issue_ops_repository', {
-        required: true
-    });
-    const issueNumber = parseInt(coreExports.getInput('issue_number', {
-        required: true
-    }), 10);
+async function createProject() {
+    const issueOps = getIssueOpsInputs();
     // Get the action inputs
-    const parsedIssueBody = JSON.parse(coreExports.getInput('parsed_issue_body', {
+    const issue = JSON.parse(coreExports.getInput('parsed_issue_body', {
         required: true
     }));
-    coreExports.info('IssueOps Inputs');
-    coreExports.info(`  Organization: ${issueOpsOrganization}`);
-    coreExports.info(`  Repository: ${issueOpsRepository}`);
-    coreExports.info(`  Issue Number: ${issueNumber}`);
     coreExports.info('Action Inputs');
-    coreExports.info(`  Organization: ${parsedIssueBody.rename_repository_organization}`);
-    coreExports.info(`  Repository: ${parsedIssueBody.rename_repository_current_name}`);
-    coreExports.info(`  New Name: ${parsedIssueBody.rename_repository_new_name}`);
+    coreExports.info(`  Organization: ${issue.create_project_organization}`);
+    coreExports.info(`  Project Name: ${issue.create_project_title}`);
+    coreExports.info(`  Team: ${issue.create_project_team}`);
+    coreExports.info(`  Repository: ${issue.create_project_repository}`);
     // If the organization name is not the same as the organization where this
     // action is running, we need to use the enterprise token.
     const octokit = new Octokit({
-        auth: parsedIssueBody.rename_repository_organization ===
+        auth: issue.create_project_organization === githubExports.context.repo.owner
+            ? process.env.GH_TOKEN
+            : process.env.GH_ENTERPRISE_TOKEN
+    });
+    // Get the organization ID
+    const ownerId = (await octokit.rest.orgs.get({
+        org: issue.create_project_organization
+    })).data.node_id;
+    // Get the repository ID
+    const repoId = (await octokit.rest.repos.get({
+        owner: issue.create_project_organization,
+        repo: issue.create_project_repository
+    })).data.node_id;
+    // Get the team ID
+    const teamId = (await octokit.rest.teams.getByName({
+        org: issue.create_project_organization,
+        team_slug: issue.create_project_team
+    })).data.id;
+    coreExports.info('GitHub IDs');
+    coreExports.info(`  Owner ID: ${ownerId}`);
+    coreExports.info(`  Repo ID: ${repoId}`);
+    coreExports.info(`  Team ID: ${teamId}`);
+    // Create the project (when not in demo mode)
+    let projectNumber = 3; // Fall back to 3 for demo mode
+    if (!DEMO_MODE) {
+        const response = await octokit.graphql(`
+        mutation($ownerId: ID!, $repoId: ID!, $teamId: ID!, $title: String!) {
+          createProjectV2(
+            input: {
+              organizationId: $ownerId
+              repositoryId: $repoId
+              teamId: $teamId
+              title: $title
+            }
+          ) {
+            projectV2 {
+              number
+            }
+          }
+        }
+      `, {
+            ownerId,
+            repoId,
+            teamId,
+            title: issue.create_project_title
+        });
+        projectNumber = response.data.createProjectV2.projectV2.number;
+    }
+    // Add a comment to the issue
+    await addComment(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber, `Created project [\`${issue.create_project_title}\`](https://github.com/orgs/${issue.create_project_organization}/projects/${projectNumber})`);
+    // Close the issue
+    await closeIssue(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber);
+}
+
+async function createRepositoryTransfer() {
+    const issueOps = getIssueOpsInputs();
+    // Get the action inputs
+    const issue = JSON.parse(coreExports.getInput('parsed_issue_body', {
+        required: true
+    }));
+    coreExports.info('Action Inputs');
+    coreExports.info(`  Current Organization: ${issue.create_repository_transfer_current_organization}`);
+    coreExports.info(`  Target Organization: ${issue.create_repository_transfer_target_organization}`);
+    coreExports.info(`  Repository Name: ${issue.create_repository_transfer_name}`);
+    // If the organization name is not the same as the organization where this
+    // action is running, we need to use the enterprise token.
+    const octokit = new Octokit({
+        auth: issue.create_repository_transfer_current_organization ===
             githubExports.context.repo.owner
+            ? process.env.GH_TOKEN
+            : process.env.GH_ENTERPRISE_TOKEN
+    });
+    // Create the transfer request (when not in demo mode)
+    if (!DEMO_MODE)
+        await octokit.rest.repos.transfer({
+            owner: issue.create_repository_transfer_current_organization,
+            repo: issue.create_repository_transfer_name,
+            new_owner: issue.create_repository_transfer_target_organization
+        });
+    // Add a comment to the issue
+    await addComment(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber, `Transferred \`${issue.create_repository_transfer_name}\` from \`${issue.create_repository_transfer_current_organization} to \`${issue.create_repository_transfer_target_organization}\``);
+    // Close the issue
+    await closeIssue(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber);
+}
+
+async function createRepository() {
+    const issueOps = getIssueOpsInputs();
+    // Get the action inputs
+    const issue = JSON.parse(coreExports.getInput('parsed_issue_body', {
+        required: true
+    }));
+    coreExports.info('Action Inputs');
+    coreExports.info(`  Organization: ${issue.create_repository_organization}`);
+    coreExports.info(`  Repository Name: ${issue.create_repository_name}`);
+    coreExports.info(`  Description: ${issue.create_repository_description}`);
+    coreExports.info(`  Visibility: ${issue.create_repository_visibility}`);
+    coreExports.info(`  Auto-Init: ${issue.create_repository_auto_init}`);
+    // If the organization name is not the same as the organization where this
+    // action is running, we need to use the enterprise token.
+    const octokit = new Octokit({
+        auth: issue.create_repository_organization === githubExports.context.repo.owner
+            ? process.env.GH_TOKEN
+            : process.env.GH_ENTERPRISE_TOKEN
+    });
+    // Create the repository (when not in demo mode)
+    if (!DEMO_MODE)
+        await octokit.rest.repos.createInOrg({
+            org: issue.create_repository_organization,
+            name: issue.create_repository_name,
+            description: issue.create_repository_description,
+            visibility: issue.create_repository_visibility,
+            auto_init: issue.create_repository_auto_init.selected.includes('Enable')
+        });
+    // Add a comment to the issue
+    await addComment(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber, `Created repository [\`${issue.create_repository_organization}/${issue.create_repository_name}\`](https://github.com/${issue.create_repository_organization}/${issue.create_repository_name})`);
+    // Close the issue
+    await closeIssue(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber);
+}
+
+async function renameRepository() {
+    const issueOps = getIssueOpsInputs();
+    // Get the action inputs
+    const issue = JSON.parse(coreExports.getInput('parsed_issue_body', {
+        required: true
+    }));
+    coreExports.info('Action Inputs');
+    coreExports.info(`  Organization: ${issue.rename_repository_organization}`);
+    coreExports.info(`  Repository: ${issue.rename_repository_current_name}`);
+    coreExports.info(`  New Name: ${issue.rename_repository_new_name}`);
+    // If the organization name is not the same as the organization where this
+    // action is running, we need to use the enterprise token.
+    const octokit = new Octokit({
+        auth: issue.rename_repository_organization === githubExports.context.repo.owner
             ? process.env.GH_TOKEN
             : process.env.GH_ENTERPRISE_TOKEN
     });
     // Get the repository information
     const { data: repo } = await octokit.repos.get({
-        owner: parsedIssueBody.rename_repository_organization,
-        repo: parsedIssueBody.rename_repository_current_name
+        owner: issue.rename_repository_organization,
+        repo: issue.rename_repository_current_name
     });
     coreExports.info(`Repository Information: ${JSON.stringify(repo)}`);
-    // Rename the repository (when not in demo mode)
-    if (repo.name !== parsedIssueBody.rename_repository_new_name && !DEMO_MODE)
+    // Rename the repository (when not in demo mode and the name is different)
+    if (!DEMO_MODE && repo.name !== issue.rename_repository_new_name)
         await octokit.repos.update({
-            owner: parsedIssueBody.rename_repository_organization,
-            repo: parsedIssueBody.rename_repository_current_name,
-            name: parsedIssueBody.rename_repository_new_name
+            owner: issue.rename_repository_organization,
+            repo: issue.rename_repository_current_name,
+            name: issue.rename_repository_new_name
         });
     // Add a comment to the issue
-    await addComment(octokit, issueOpsOrganization, issueOpsRepository, issueNumber, repo.name !== parsedIssueBody.rename_repository_new_name
-        ? `Renamed repository \`${parsedIssueBody.rename_repository_organization}/${parsedIssueBody.rename_repository_current_name}\` to \`${parsedIssueBody.rename_repository_organization}/${parsedIssueBody.rename_repository_new_name}\``
-        : `Repository is already named \`${parsedIssueBody.rename_repository_organization}/${parsedIssueBody.rename_repository_new_name}\``);
-    coreExports.info(`Renamed Repository: ${parsedIssueBody.rename_repository_current_name} -> ${parsedIssueBody.rename_repository_new_name}`);
+    await addComment(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber, repo.name !== issue.rename_repository_new_name
+        ? `Renamed repository \`${issue.rename_repository_organization}/${issue.rename_repository_current_name}\` to [\`${issue.rename_repository_organization}/${issue.rename_repository_new_name}\`](https://github.com/${issue.rename_repository_organization}/${issue.rename_repository_new_name})`
+        : `Repository is already named [\`${issue.rename_repository_organization}/${issue.rename_repository_new_name}\`](https://github.com/${issue.rename_repository_organization}/${issue.rename_repository_new_name})`);
     // Close the issue
-    await closeIssue(octokit, issueOpsOrganization, issueOpsRepository, issueNumber);
-    coreExports.setOutput('new_name', parsedIssueBody.rename_repository_new_name);
-    coreExports.info('Action Complete!');
+    await closeIssue(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber);
+}
+
+async function unarchiveRepository() {
+    const issueOps = getIssueOpsInputs();
+    // Get the action inputs
+    const issue = JSON.parse(coreExports.getInput('parsed_issue_body', {
+        required: true
+    }));
+    coreExports.info('Action Inputs');
+    coreExports.info(`  Organization: ${issue.unarchive_repository_organization}`);
+    coreExports.info(`  Repository: ${issue.unarchive_repository_name}`);
+    // If the organization name is not the same as the organization where this
+    // action is running, we need to use the enterprise token.
+    const octokit = new Octokit({
+        auth: issue.unarchive_repository_organization === githubExports.context.repo.owner
+            ? process.env.GH_TOKEN
+            : process.env.GH_ENTERPRISE_TOKEN
+    });
+    // Get the repository information
+    const { data: repo } = await octokit.repos.get({
+        owner: issue.unarchive_repository_organization,
+        repo: issue.unarchive_repository_name
+    });
+    coreExports.info(`Repository Information: ${JSON.stringify(repo)}`);
+    // Unarchive the repository (when not in demo mode and the repository is
+    // currently archived)
+    if (!DEMO_MODE && repo.archived === true)
+        await octokit.repos.update({
+            owner: issue.unarchive_repository_organization,
+            repo: issue.unarchive_repository_name,
+            archived: false
+        });
+    // Add a comment to the issue
+    await addComment(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber, repo.archived === false
+        ? `Unarchived repository \`${issue.unarchive_repository_organization}/${issue.unarchive_repository_name}\``
+        : `Repository is already unarchived \`${issue.unarchive_repository_organization}/${issue.unarchive_repository_name}\``);
+    // Close the issue
+    await closeIssue(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber);
 }
 
 // If this action is running in the `issue-ops/self-service` repository, don't
@@ -34969,9 +35207,22 @@ const action = coreExports.getInput('action', { required: true })
     .replace('.yml', '');
 if (action === 'archive-repository')
     await archiveRepository();
+else if (action === 'change-repository-visibility')
+    await changeRepositoryVisibility();
+else if (action === 'create-actions-variable')
+    await createActionsVariable();
 else if (action === 'create-announcement')
     await createAnnouncement();
+else if (action === 'create-project')
+    await createProject();
+else if (action === 'create-repository-transfer')
+    await createRepositoryTransfer();
+else if (action === 'create-repository')
+    await createRepository();
 else if (action === 'rename-repository')
     await renameRepository();
+else if (action === 'unarchive-repository')
+    await unarchiveRepository();
 else
     coreExports.setFailed(`Unknown Action: ${action}`);
+coreExports.info('Action Complete!');
