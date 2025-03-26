@@ -15,6 +15,9 @@ export default async (field) => {
     slugify: true
   })
 
+  console.log(issue)
+  console.log(field)
+
   // If the organization name is not the same as the organization where this
   // action is running, we need to use the enterprise token.
   const octokit = new Octokit({
