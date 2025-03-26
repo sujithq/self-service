@@ -1,36 +1,6 @@
 [
   {
     "assignees": [],
-    "category": "enterprise",
-    "description": "Create a new organization. Requires enterprise admin approval.",
-    "icon": "Building",
-    "issueFormTemplate": "create-organization.yml",
-    "issueTitle": "[IssueOps] Create a new organization",
-    "label": "create-organization",
-    "name": "Organization"
-  },
-  {
-    "assignees": [],
-    "category": "enterprise",
-    "description": "Create a new GitHub App. Requires enterprise admin approval.",
-    "icon": "GithubIcon",
-    "issueFormTemplate": "create-github-app.yml",
-    "issueTitle": "[IssueOps] Create a new GitHub App",
-    "label": "create-github-app",
-    "name": "GitHub App"
-  },
-  {
-    "assignees": [],
-    "category": "enterprise",
-    "description": "Migrate your data. Requires human interaction to complete.",
-    "icon": "ArrowLeftRight",
-    "issueFormTemplate": "create-migration.yml",
-    "issueTitle": "[IssueOps] Create a data migration",
-    "label": "create-migration",
-    "name": "Data Migration"
-  },
-  {
-    "assignees": [],
     "category": "organization",
     "description": "Create an organization announcement banner.",
     "icon": "Volume2",
@@ -98,26 +68,6 @@
     "issueTitle": "[IssueOps] Archive a repository",
     "label": "archive-repository",
     "name": "Archive Repository"
-  },
-  {
-    "assignees": [],
-    "category": "repository",
-    "description": "Create a new branch protection rule for your repository.",
-    "icon": "GitBranch",
-    "issueFormTemplate": "create-branch-protection.yml",
-    "issueTitle": "[IssueOps] Create a new branch protection rule",
-    "label": "create-branch-protection",
-    "name": "Branch Protection Rule"
-  },
-  {
-    "assignees": [],
-    "category": "repository",
-    "description": "Create new branch ruleset for your repository.",
-    "icon": "GitBranch",
-    "issueFormTemplate": "create-branch-ruleset.yml",
-    "issueTitle": "[IssueOps] Create a new branch ruleset",
-    "label": "create-branch-ruleset",
-    "name": "Branch Ruleset"
   },
   {
     "assignees": [],

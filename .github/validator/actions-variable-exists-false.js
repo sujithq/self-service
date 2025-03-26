@@ -1,5 +1,7 @@
 /**
- * Passes validation if all the repositories exist.
+ * Passes validation if the GitHub Actions variable does not exist.
+ *
+ * https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/store-information-in-variables#defining-configuration-variables-for-multiple-workflows
  *
  * @param {string | string[] | {label: string; required: boolean }} field Input field
  * @returns {Promise<string>} An error message or `'success'`
@@ -22,25 +24,16 @@ export default async (field) => {
         : process.env.GH_ENTERPRISE_TOKEN
   })
 
-  // Split the field into an array (by newlines and commas) and remove any
-  // whitespace or empty strings.
-  const repositories = field
-    .split(/[\s,\n]+/)
-    .filter((repository) => repository.trim() !== '')
+  try {
+    // Check if the variable exists
+    await octokit.rest.actions.getOrgVariable({
+      owner: issue.github_organization,
+      name: field
+    })
 
-  for (const repository of repositories) {
-    try {
-      // Check if the repository exists
-      await octokit.rest.repos.get({
-        owner: issue.github_organization,
-        repo: repository
-      })
-    } catch (error) {
-      if (error.status === 404)
-        return `Repository \`${repository}\` does not exist`
-      else throw error
-    }
+    return `Variable \`${field}\` already exists`
+  } catch (error) {
+    if (error.status === 404) return 'success'
+    else throw error
   }
-
-  return 'success'
 }

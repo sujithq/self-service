@@ -1,6 +1,6 @@
-name: '[IssueOps] Create an Organization Announcement Banner'
+name: '[IssueOps] Create Organization Announcement Banner'
 description: Creates an organization announcement banner.
-title: '[IssueOps] Create an Organization Announcement Banner'
+title: '[IssueOps] Create Organization Announcement Banner'
 labels:
   - issue-ops
   - create-announcement
@@ -8,9 +8,8 @@ body:
   - id: create_announcement_organization
     type: input
     attributes:
-      label: Organization
-      description:
-        The GitHub organization where the announcement will be created
+      label: GitHub Organization
+      description: GitHub organization where the announcement will be created
       placeholder: github
     validations:
       required: true

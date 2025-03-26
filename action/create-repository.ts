@@ -1,11 +1,11 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { Octokit } from '@octokit/rest'
-import { UnarchiveRepositoryBody } from './types.js'
+import { CreateRepositoryBody } from './types.js'
 import { addComment, closeIssue } from './utils/issues.js'
 import { DEMO_MODE } from './utils/mode.js'
 
-export async function unarchiveRepository(): Promise<void> {
+export async function createRepository(): Promise<void> {
   // Get the IssueOps inputs
   const issueOpsOrganization: string = core.getInput('issue_ops_organization', {
     required: true
@@ -21,11 +21,11 @@ export async function unarchiveRepository(): Promise<void> {
   )
 
   // Get the action inputs
-  const parsedIssueBody: UnarchiveRepositoryBody = JSON.parse(
+  const parsedIssueBody: CreateRepositoryBody = JSON.parse(
     core.getInput('parsed_issue_body', {
       required: true
     })
-  ) as UnarchiveRepositoryBody
+  )
 
   core.info('IssueOps Inputs')
   core.info(`  Organization: ${issueOpsOrganization}`)
@@ -33,34 +33,33 @@ export async function unarchiveRepository(): Promise<void> {
   core.info(`  Issue Number: ${issueNumber}`)
 
   core.info('Action Inputs')
-  core.info(
-    `  Organization: ${parsedIssueBody.unarchive_repository_organization}`
-  )
-  core.info(`  Repository: ${parsedIssueBody.unarchive_repository_name}`)
+  core.info(`  Organization: ${parsedIssueBody.create_repository_organization}`)
+  core.info(`  Repository Name: ${parsedIssueBody.create_repository_name}`)
+  core.info(`  Description: ${parsedIssueBody.create_repository_description}`)
+  core.info(`  Visibility: ${parsedIssueBody.create_repository_visibility}`)
+  core.info(`  Auto-Init: ${parsedIssueBody.create_repository_auto_init}`)
 
   // If the organization name is not the same as the organization where this
   // action is running, we need to use the enterprise token.
   const octokit = new Octokit({
     auth:
-      parsedIssueBody.unarchive_repository_organization ===
+      parsedIssueBody.create_repository_organization ===
       github.context.repo.owner
         ? process.env.GH_TOKEN
         : process.env.GH_ENTERPRISE_TOKEN
   })
 
-  // Get the repository information
-  const { data: repo } = await octokit.repos.get({
-    owner: parsedIssueBody.unarchive_repository_organization,
-    repo: parsedIssueBody.unarchive_repository_name
-  })
-  core.info(`Repository Information: ${JSON.stringify(repo)}`)
-
-  // Rename the repository (when not in demo mode)
-  if (!DEMO_MODE && repo.archived === false)
-    await octokit.repos.update({
-      owner: parsedIssueBody.unarchive_repository_organization,
-      repo: parsedIssueBody.unarchive_repository_name,
-      archived: true
+  // Create the repository (when not in demo mode)
+  if (!DEMO_MODE)
+    await octokit.rest.repos.createInOrg({
+      org: parsedIssueBody.create_repository_organization,
+      name: parsedIssueBody.create_repository_name,
+      description: parsedIssueBody.create_repository_description,
+      visibility: parsedIssueBody.create_repository_visibility as
+        | 'public'
+        | 'private',
+      auto_init:
+        parsedIssueBody.create_repository_auto_init.selected.includes('Enable')
     })
 
   // Add a comment to the issue
@@ -69,13 +68,11 @@ export async function unarchiveRepository(): Promise<void> {
     issueOpsOrganization,
     issueOpsRepository,
     issueNumber,
-    repo.archived === false
-      ? `Unarchived repository \`${parsedIssueBody.unarchive_repository_organization}/${parsedIssueBody.unarchive_repository_name}\``
-      : `Repository is already unarchived \`${parsedIssueBody.unarchive_repository_organization}/${parsedIssueBody.unarchive_repository_name}\``
+    `Created repository \`${parsedIssueBody.create_repository_organization}/${parsedIssueBody.create_repository_name}\``
   )
 
   core.info(
-    `Unarchived Repository: ${parsedIssueBody.unarchive_repository_organization}/${parsedIssueBody.unarchive_repository_name}`
+    `Created Repository: \`${parsedIssueBody.create_repository_organization}/${parsedIssueBody.create_repository_name}\``
   )
 
   // Close the issue

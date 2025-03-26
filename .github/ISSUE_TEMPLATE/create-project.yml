@@ -1,0 +1,39 @@
+name: '[IssueOps] Create Organization Project'
+description: Create an organization project.
+title: '[IssueOps] Create Organization Project'
+labels:
+  - issue-ops
+  - create-project
+body:
+  - id: create_project_organization
+    type: input
+    attributes:
+      label: GitHub Organization
+      description: GitHub organization where the project will be created
+      placeholder: github
+    validations:
+      required: true
+  - id: create_project_title
+    type: input
+    attributes:
+      label: Project Title
+      description: Title of the project to create
+      placeholder: octoproject
+    validations:
+      required: true
+  - id: create_project_team
+    type: input
+    attributes:
+      label: GitHub Team
+      description: Name of the team to add to the project
+      placeholder: octoteam
+    validations:
+      required: true
+  - id: create_project_repository
+    type: input
+    attributes:
+      label: GitHub Repository
+      description: Name of the repository to add to the project
+      placeholder: octorepo
+    validations:
+      required: true

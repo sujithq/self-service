@@ -3,6 +3,9 @@ import { archiveRepository } from './archive-repository.js'
 import { changeRepositoryVisibility } from './change-repository-visibility.js'
 import { createActionsVariable } from './create-actions-variable.js'
 import { createAnnouncement } from './create-announcement.js'
+import { createProject } from './create-project.js'
+import { createRepositoryTransfer } from './create-repository-transfer.js'
+import { createRepository } from './create-repository.js'
 import { renameRepository } from './rename-repository.js'
 import { Action } from './types.js'
 import { unarchiveRepository } from './unarchive-repository.js'
@@ -24,6 +27,10 @@ else if (action === 'change-repository-visibility')
   await changeRepositoryVisibility()
 else if (action === 'create-actions-variable') await createActionsVariable()
 else if (action === 'create-announcement') await createAnnouncement()
+else if (action === 'create-project') await createProject()
+else if (action === 'create-repository-transfer')
+  await createRepositoryTransfer()
+else if (action === 'create-repository') await createRepository()
 else if (action === 'rename-repository') await renameRepository()
 else if (action === 'unarchive-repository') await unarchiveRepository()
 else core.setFailed(`Unknown Action: ${action}`)

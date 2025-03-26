@@ -12,13 +12,12 @@ export default async (field) => {
   // Since this requires additional information from the issue, we need to get
   // and parse the issue body.
   const issue = parseIssue(issueBody)
-  const organization = issue.organization
 
   // If the organization name is not the same as the organization where this
   // action is running, we need to use the enterprise token.
   const octokit = new Octokit({
     auth:
-      organization === github.context.repo.owner
+      issue.github_organization === github.context.repo.owner
         ? process.env.GH_TOKEN
         : process.env.GH_ENTERPRISE_TOKEN
   })
@@ -26,7 +25,7 @@ export default async (field) => {
   try {
     // Check if the repository exists
     await octokit.rest.repos.get({
-      owner: organization,
+      owner: issue.github_organization,
       repo: field
     })
 

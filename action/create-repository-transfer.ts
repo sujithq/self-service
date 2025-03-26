@@ -1,11 +1,11 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { Octokit } from '@octokit/rest'
-import { CreateAnnouncementBody } from './types.js'
+import { CreateRepositoryTransferBody } from './types.js'
 import { addComment, closeIssue } from './utils/issues.js'
 import { DEMO_MODE } from './utils/mode.js'
 
-export async function createAnnouncement(): Promise<void> {
+export async function createRepositoryTransfer(): Promise<void> {
   // Get the IssueOps inputs
   const issueOpsOrganization: string = core.getInput('issue_ops_organization', {
     required: true
@@ -21,11 +21,11 @@ export async function createAnnouncement(): Promise<void> {
   )
 
   // Get the action inputs
-  const parsedIssueBody: CreateAnnouncementBody = JSON.parse(
+  const parsedIssueBody: CreateRepositoryTransferBody = JSON.parse(
     core.getInput('parsed_issue_body', {
       required: true
     })
-  ) as CreateAnnouncementBody
+  )
 
   core.info('IssueOps Inputs')
   core.info(`  Organization: ${issueOpsOrganization}`)
@@ -34,39 +34,31 @@ export async function createAnnouncement(): Promise<void> {
 
   core.info('Action Inputs')
   core.info(
-    `  Organization: ${parsedIssueBody.create_announcement_organization}`
+    `  Current Organization: ${parsedIssueBody.create_repository_transfer_current_organization}`
   )
   core.info(
-    `  Expiration Date: ${parsedIssueBody.create_announcement_expiration_date}`
+    `  Target Organization: ${parsedIssueBody.create_repository_transfer_target_organization}`
   )
   core.info(
-    `  User Dismissible: ${parsedIssueBody.create_announcement_user_dismissible}`
+    `  Repository Name: ${parsedIssueBody.create_repository_transfer_name}`
   )
-  core.info(`  Markdown: ${parsedIssueBody.create_announcement_markdown}`)
 
   // If the organization name is not the same as the organization where this
   // action is running, we need to use the enterprise token.
   const octokit = new Octokit({
     auth:
-      parsedIssueBody.create_announcement_organization ===
+      parsedIssueBody.create_repository_transfer_current_organization ===
       github.context.repo.owner
         ? process.env.GH_TOKEN
         : process.env.GH_ENTERPRISE_TOKEN
   })
 
-  // Create the announcement (when not in demo mode)
+  // Create the transfer request (when not in demo mode)
   if (!DEMO_MODE)
-    // https://docs.github.com/en/enterprise-cloud@latest/rest/announcement-banners/organizations#set-announcement-banner-for-organization
-    await octokit.request('PATCH /orgs/{org}/announcement', {
-      org: parsedIssueBody.create_announcement_organization,
-      announcement: parsedIssueBody.create_announcement_markdown,
-      expires_at: new Date(
-        parsedIssueBody.create_announcement_expiration_date
-      ).toISOString(),
-      user_dismissible:
-        parsedIssueBody.create_announcement_user_dismissible.selected.includes(
-          'Enable'
-        )
+    await octokit.rest.repos.transfer({
+      owner: parsedIssueBody.create_repository_transfer_current_organization,
+      repo: parsedIssueBody.create_repository_transfer_name,
+      new_owner: parsedIssueBody.create_repository_transfer_target_organization
     })
 
   // Add a comment to the issue
@@ -75,11 +67,11 @@ export async function createAnnouncement(): Promise<void> {
     issueOpsOrganization,
     issueOpsRepository,
     issueNumber,
-    `Created announcement expiring \`${parsedIssueBody.create_announcement_expiration_date}`
+    `Transferred \`${parsedIssueBody.create_repository_transfer_name}\` from \`${parsedIssueBody.create_repository_transfer_current_organization} to \`${parsedIssueBody.create_repository_transfer_target_organization}\``
   )
 
   core.info(
-    `Created Announcement Expiring: ${parsedIssueBody.create_announcement_expiration_date}`
+    `Transferred \`${parsedIssueBody.create_repository_transfer_name}\` from \`${parsedIssueBody.create_repository_transfer_current_organization} to \`${parsedIssueBody.create_repository_transfer_target_organization}\``
   )
 
   // Close the issue
@@ -90,9 +82,5 @@ export async function createAnnouncement(): Promise<void> {
     issueNumber
   )
 
-  core.setOutput(
-    'expiration_date',
-    parsedIssueBody.create_announcement_expiration_date
-  )
   core.info('Action Complete!')
 }

@@ -1,0 +1,47 @@
+name: '[IssueOps] Create Repository'
+description: Create a GitHub repository.
+title: '[IssueOps] Create Repository'
+labels:
+  - issue-ops
+  - create-repository
+body:
+  - id: create_repository_organization
+    type: input
+    attributes:
+      label: GitHub Organization
+      description: GitHub organization where the repository will be created
+      placeholder: github
+    validations:
+      required: true
+  - id: create_repository_name
+    type: input
+    attributes:
+      label: GitHub Repository
+      description: GitHub repository name
+      placeholder: monarepo
+    validations:
+      required: true
+  - id: create_repository_description
+    type: input
+    attributes:
+      label: Description
+      description: Brief description of the repository
+      placeholder: This is my repository!
+  - id: create_repository_visibility
+    type: dropdown
+    attributes:
+      label: Visibility
+      description: Repository visiblity (internal, public, or private)
+      options:
+        - internal
+        - public
+        - private
+    validations:
+      required: true
+  - id: create_repository_auto_init
+    type: checkboxes
+    attributes:
+      label: Initialize with a README
+      description: Add a README.md file to the repository on creation
+      options:
+        - label: Enable

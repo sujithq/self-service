@@ -1,0 +1,30 @@
+name: '[IssueOps] Create Repository Transfer Request'
+description: Create a repository transfer request.
+title: '[IssueOps] Create Repository Transfer Request'
+labels:
+  - issue-ops
+  - create-repository-transfer
+body:
+  - id: create_repository_transfer_current_organization
+    type: input
+    attributes:
+      label: GitHub Organization
+      description: Current GitHub organization where the repository is located
+      placeholder: github
+    validations:
+      required: true
+  - id: create_repository_transfer_target_organization
+    type: input
+    attributes:
+      label: Target GitHub Organization
+      description:
+        Target GitHub organization where the repository will be transferred
+      placeholder: github-new
+  - id: create_repository_transfer_name
+    type: input
+    attributes:
+      label: Repository
+      description: GitHub repository name
+      placeholder: monarepo
+    validations:
+      required: true

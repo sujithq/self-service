@@ -5,6 +5,9 @@ export type Action =
   | 'change-repository-visibility'
   | 'create-announcement'
   | 'create-actions-variable'
+  | 'create-project'
+  | 'create-repository'
+  | 'create-repository-transfer'
   | 'rename-repository'
   | 'unarchive-repository'
 
@@ -32,6 +35,27 @@ export type CreateAnnouncementBody = {
   create_announcement_markdown: string
   create_announcement_expiration_date: string
   create_announcement_user_dismissible: Checkboxes
+}
+
+export type CreateProjectBody = {
+  create_project_organization: string
+  create_project_team: string
+  create_project_title: string
+  create_project_repository: string
+}
+
+export type CreateRepositoryBody = {
+  create_repository_organization: string
+  create_repository_name: string
+  create_repository_description: string
+  create_repository_visibility: 'internal' | 'public' | 'private'
+  create_repository_auto_init: Checkboxes
+}
+
+export type CreateRepositoryTransferBody = {
+  create_repository_transfer_current_organization: string
+  create_repository_transfer_target_organization: string
+  create_repository_transfer_name: string
 }
 
 export type RenameRepositoryBody = {

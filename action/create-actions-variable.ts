@@ -109,6 +109,5 @@ export async function createActionsVariable(): Promise<void> {
     issueNumber
   )
 
-  core.setOutput('variable_name', parsedIssueBody.create_actions_variable_name)
   core.info('Action Complete!')
 }

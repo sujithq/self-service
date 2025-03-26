@@ -12,6 +12,8 @@ validators:
   # create-actions-variable
   - field: create_actions_variable_name
     script: actions-variable-name-valid-true.js
+  - field: create_actions_variable_name
+    script: actions-variable-exists-false.js
   - field: create_actions_variable_visibility
     script: actions-variable-visibility-valid-true.js
   - field: create_actions_variable_repository_names
@@ -21,11 +23,33 @@ validators:
   - field: create_announcement_expiration_date
     script: date-valid-true.js
 
+  # create-project
+  - field: create_project_title
+    script: project-exists-false.js
+  - field: create_project_team
+    script: team-exists-true.js
+  - field: create_project_repository
+    script: repository-exists-true.js
+
+  # create-repository-transfer
+  - field: create_repository_transfer_name
+    script: repository-exists-true.js
+
+  # create-repository
+  - field: create_repository_name
+    script: repository-name-valid-true.js
+  - field: create_repository_name
+    script: repository-exists-false.js
+  - field: create_repository_visibility
+    script: repository-visibility-valid-true.js
+
   # rename-repository
   - field: rename_repository_current_name
     script: repository-exists-true.js
   - field: rename_repository_new_name
     script: repository-name-valid-true.js
+  - field: rename_repository_new_name
+    script: repository-exists-false.js
 
   # unarchive-repository
   - field: unarchive_repository_name

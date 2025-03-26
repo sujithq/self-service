@@ -5,13 +5,13 @@ on:
     branches:
       - main
     paths:
-      - actions/**/*
+      - action/**/*
       - dist/**/*
   pull_request:
     branches:
       - main
     paths:
-      - actions/**/*
+      - action/**/*
       - dist/**/*
 
 permissions:
