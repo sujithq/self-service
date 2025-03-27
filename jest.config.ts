@@ -3,9 +3,9 @@ import type { JestConfigWithTsJest } from 'ts-jest'
 const jestConfig: JestConfigWithTsJest = {
   clearMocks: true,
   collectCoverage: true,
-  collectCoverageFrom: ['./src/**'],
+  collectCoverageFrom: ['./action/**'],
   coverageDirectory: './coverage',
-  coveragePathIgnorePatterns: ['/node_modules/', '/dist/'],
+  coveragePathIgnorePatterns: ['/dist/', '/node_modules/', '/src/'],
   coverageReporters: ['json-summary', 'text', 'lcov'],
   coverageThreshold: {
     global: {
@@ -20,7 +20,11 @@ const jestConfig: JestConfigWithTsJest = {
   preset: 'ts-jest',
   reporters: ['default', 'jest-junit'],
   resolver: 'ts-jest-resolver',
-  roots: ['<rootDir>/src/', '<rootDir>/__fixtures__/', '<rootDir>/__tests__/'],
+  roots: [
+    '<rootDir>/__fixtures__/',
+    '<rootDir>/__tests__/',
+    '<rootDir>/action/'
+  ],
   testEnvironment: 'node',
   testMatch: ['**/*.test.ts'],
   testPathIgnorePatterns: ['/dist/', '/megalinter-reports/', '/node_modules/'],

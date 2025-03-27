@@ -1,12 +1,15 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { Octokit } from '@octokit/rest'
-import IssueOps from '../data/issue-ops.json' assert { type: 'json' }
-import { createRepository } from './organization/create-repository.js'
+import fs from 'fs'
+import { dirname } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import path from 'path'
 import {
   createActionsVariable,
   createAnnouncement,
   createProject,
+  createRepository,
   createRepositoryTransfer
 } from './organization/index.js'
 import {
@@ -16,10 +19,12 @@ import {
   unarchiveRepository
 } from './repository/index.js'
 import type { Action, IssueOpsMetadata } from './types.js'
-import { getStatus, tagApprovers } from './utils/approvals'
-import { getIssueOpsInputs } from './utils/inputs'
-import { addComment, closeIssue } from './utils/issues'
+import { getStatus, tagApprovers } from './utils/approvals.js'
+import { getIssueOpsInputs } from './utils/inputs.js'
+import { addComment, closeIssue } from './utils/issues.js'
 import { DEMO_MODE } from './utils/mode.js'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
 
 /**
  * The main function for the action.
@@ -47,9 +52,14 @@ export async function run(): Promise<void> {
   const action = actionYaml.replace('.yml', '') as Action
 
   // Get the metadata for this IssueOps action.
-  const metadata = (IssueOps as IssueOpsMetadata[]).filter(
-    (a) => a.issueFormTemplate === actionYaml
-  )[0]
+  const metadata = (
+    JSON.parse(
+      fs.readFileSync(
+        path.resolve(__dirname, '..', 'data', 'issue-ops.json'),
+        'utf8'
+      )
+    ) as IssueOpsMetadata[]
+  ).filter((a) => a.issueFormTemplate === actionYaml)[0]
 
   // Fail the workflow if the metadata is not found.
   if (metadata === undefined) return core.setFailed(`Unknown Action: ${action}`)
@@ -83,7 +93,6 @@ export async function run(): Promise<void> {
       await renameRepository(issueOpsInputs)
     else if (action === 'unarchive-repository')
       await unarchiveRepository(issueOpsInputs)
-    else core.setFailed(`Unknown Action: ${action}`)
   } else if (status.state === 'denied') {
     // The request was denied, notify the user and close the issue.
     core.info('Request denied! Closing issue...')
