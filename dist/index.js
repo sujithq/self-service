@@ -35429,13 +35429,16 @@ async function tagApprovers(issueOpsInputs, metadata) {
     if (metadata.approvers.length === 0)
         return coreExports.info('No approvals required!');
     // Comment on the issue and tag the approvers.
-    const approvers = metadata.approvers.map((a) => `- @${a}`).join('\n');
+    const approvers = metadata.approvers
+        .map((a) => `- ${!a.includes('@') ? '@' : ''}${a}`)
+        .join('\n');
     let comment = dedent `This request requires approval from the following users and/or teams:
   
   ${approvers}
 
-  - To approve this request, add \`/approve\` as a comment.
-  - To deny this request, add \`/deny\` as a comment.`;
+  To approve this request, add \`/approve\` as a comment.
+
+  To deny this request, add \`/deny\` as a comment.`;
     // If this issue is being reopened or edited, we should also indicate that any
     // previous approvals are no longer valid.
     if (['reopened', 'edited'].includes(githubExports.context.payload.action))
@@ -35513,7 +35516,12 @@ async function getStatus(issueOpsInputs, metadata) {
                 return {
                     state: 'denied'
                 };
-        // Check if the user is a member of an approval team.
+        // Check if the user is a member of an approval team. However, skip this
+        // if the user who created the issue is the same as the user who commented.
+        // This is to prevent a user from approving their own request unless they
+        // are explicitly listed as an approver by handle (not team).
+        if (event.user.login === githubExports.context.payload.issue?.user.login)
+            continue;
         for (const team of pending.filter((a) => a.includes('/'))) {
             if (await isMember(octokit, team, event.user.login))
                 if (event.body === '/approve')
