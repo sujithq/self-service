@@ -1,10 +1,10 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { Octokit } from '@octokit/rest'
-import { ChangeRepositoryVisibilityBody } from './types.js'
-import { getIssueOpsInputs } from './utils/inputs.js'
-import { addComment, closeIssue } from './utils/issues.js'
-import { DEMO_MODE } from './utils/mode.js'
+import { ChangeRepositoryVisibilityBody } from '../types.js'
+import { getIssueOpsInputs } from '../utils/inputs.js'
+import { addComment, closeIssue } from '../utils/issues.js'
+import { DEMO_MODE } from '../utils/mode.js'
 
 // TODO: If setting to public, this should require approval.
 

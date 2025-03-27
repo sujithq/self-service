@@ -1,14 +1,18 @@
 import * as core from '@actions/core'
-import { archiveRepository } from './archive-repository.js'
-import { changeRepositoryVisibility } from './change-repository-visibility.js'
-import { createActionsVariable } from './create-actions-variable.js'
-import { createAnnouncement } from './create-announcement.js'
-import { createProject } from './create-project.js'
-import { createRepositoryTransfer } from './create-repository-transfer.js'
-import { createRepository } from './create-repository.js'
-import { renameRepository } from './rename-repository.js'
-import { Action } from './types.js'
-import { unarchiveRepository } from './unarchive-repository.js'
+import { createRepository } from './organization/create-repository.js'
+import {
+  createActionsVariable,
+  createAnnouncement,
+  createProject,
+  createRepositoryTransfer
+} from './organization/index.js'
+import {
+  archiveRepository,
+  changeRepositoryVisibility,
+  renameRepository,
+  unarchiveRepository
+} from './repository/index.js'
+import type { Action } from './types.js'
 import { DEMO_MODE } from './utils/mode.js'
 
 // If this action is running in the `issue-ops/self-service` repository, don't
@@ -18,7 +22,7 @@ if (DEMO_MODE)
   core.info('Running in `issue-ops/self-service`...switching to demo mode!')
 
 // Get the action. This determines what function to run.
-const action: Action = core
+const action = core
   .getInput('action', { required: true })
   .replace('.yml', '') as Action
 

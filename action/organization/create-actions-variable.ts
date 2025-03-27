@@ -1,10 +1,10 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { Octokit } from '@octokit/rest'
-import { CreateActionsVariableBody } from './types.js'
-import { getIssueOpsInputs } from './utils/inputs.js'
-import { addComment, closeIssue } from './utils/issues.js'
-import { DEMO_MODE } from './utils/mode.js'
+import { CreateActionsVariableBody } from '../types.js'
+import { getIssueOpsInputs } from '../utils/inputs.js'
+import { addComment, closeIssue } from '../utils/issues.js'
+import { DEMO_MODE } from '../utils/mode.js'
 
 export async function createActionsVariable(): Promise<void> {
   const issueOps = getIssueOpsInputs()
