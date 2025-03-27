@@ -1,7 +1,10 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { Octokit } from '@octokit/rest'
-import { ChangeRepositoryVisibilityBody } from '../types.js'
+import {
+  ChangeRepositoryVisibilityBody,
+  RepositoryVisibility
+} from '../types.js'
 import { getIssueOpsInputs } from '../utils/inputs.js'
 import { addComment, closeIssue } from '../utils/issues.js'
 import { DEMO_MODE } from '../utils/mode.js'
@@ -47,12 +50,10 @@ export async function changeRepositoryVisibility(): Promise<void> {
     await octokit.repos.update({
       owner: issue.change_repository_visibility_organization,
       repo: issue.change_repository_visibility_name,
+      // @ts-expect-error The `internal` visibility option is not included in
+      // the TypeScript type definition for the `repos.update` method.
       visibility:
-        // Note: The `internal` visibility option is not included in the
-        // TypeScript type definition for the `repos.update` method.
-        issue.change_repository_visibility_visibility.toLowerCase() as
-          | 'public'
-          | 'private'
+        issue.change_repository_visibility_visibility.toLowerCase() as RepositoryVisibility
     })
 
   // Add a comment to the issue

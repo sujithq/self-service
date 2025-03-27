@@ -38,7 +38,9 @@ export async function createRepository(): Promise<void> {
       org: issue.create_repository_organization,
       name: issue.create_repository_name,
       description: issue.create_repository_description,
-      visibility: issue.create_repository_visibility as 'public' | 'private',
+      // @ts-expect-error The `internal` visibility option is not included in
+      // the TypeScript type definition for the `repos.createInOrg` method.
+      visibility: issue.create_repository_visibility,
       auto_init: issue.create_repository_auto_init.selected.includes('Enable')
     })
 
