@@ -29,7 +29,7 @@ export async function tagApprovers(
     .map((a) => `- ${!a.includes('@') ? '@' : ''}${a}`)
     .join('\n')
 
-  let comment = dedent`This request requires approval from the following users and/or teams:
+  let comment = dedent`This request requires approval from the following users and/or teams. Please note that the user who created the issue is not able to approve their own requests.
   
   ${approvers}
 
