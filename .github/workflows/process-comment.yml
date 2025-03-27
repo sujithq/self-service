@@ -1,0 +1,156 @@
+name: Process Issue Comment
+
+on:
+  issue_comment:
+    types:
+      - created
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+jobs:
+  process:
+    name: Process Issue Comment
+    runs-on: ubuntu-latest
+
+    # This job should only be run when the following are true:
+    #
+    # - The issue has the `issue-ops` label.
+    # - The issue is open.
+    # - The comment starts with a forward slash (e.g. `/approve` or `/deny`).
+    # - The comment author is not the IssueOps bot (prevents infinite loops).
+    if: |
+      contains(github.event.issue.labels.*.name, 'issue-ops') &&
+      github.event.issue.state == 'open' &&
+      startsWith(github.event.comment.body, '/') &&
+      github.actor != 'issueops-bot[bot]'
+
+    steps:
+      # This is required to ensure the issue form template and any validation
+      # scripts are included in the workspace.
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+
+      # Since this workflow include custom validation scripts, we need to
+      # install Node.js and any dependencies.
+      - name: Setup Node.js
+        id: setup-node
+        uses: actions/setup-node@v4
+        with:
+          cache: npm
+          node-version-file: .node-version
+
+      # Install dependencies from `package.json`.
+      - name: Install Dependencies
+        id: install
+        run: npm install
+
+      # GitHub App authentication is required if you want to interact with any
+      # resources outside the scope of the repository this workflow runs in.
+      - name: Get GitHub App Token
+        id: token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ vars.ISSUEOPS_APP_ID }}
+          private-key: ${{ secrets.ISSUEOPS_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+
+      # If the `validated` label is present, remove it.
+      - name: Remove Validated Label
+        id: remove-label
+        uses: issue-ops/labeler@v2
+        with:
+          action: remove
+          github_token: ${{ steps.token.outputs.token }}
+          labels: |
+            validated
+          issue_number: ${{ github.event.issue.number }}
+          repository: ${{ github.repository }}
+
+      # Since this workflow supports many different issue forms, we need to
+      # determine which issue form was used to create the issue. This can be
+      # done by checking the labels on the issue and comparing them to the
+      # expected labels for each issue form.
+      - name: Get Issue Form Template
+        id: get-template
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs')
+            const labels = context.payload.issue.labels.map((label) => label.name)
+
+            const issueOps = JSON.parse(
+              fs.readFileSync(
+                `${process.env.GITHUB_WORKSPACE}/data/issue-ops.json`,
+                'utf8'
+              )
+            ).filter(
+              (issueOp) => labels.includes(issueOp.label)
+            )
+
+            if (issueOps.length === 0) {
+              throw new Error('No issue ops label found!')
+            }
+            if (issueOps.length > 1) {
+              throw new Error(`Multiple issue ops labels found: ${issueOps.map((issueOp) => issueOp.label).join(', ')}`)
+            }
+
+            core.setOutput('template', issueOps[0].issueFormTemplate)
+
+      # Parse the issue body into machine-readable JSON, so that it can be
+      # processed by the rest of the workflow.
+      - name: Parse Issue body
+        id: parse
+        uses: issue-ops/parser@v4
+        with:
+          body: ${{ github.event.issue.body }}
+          issue-form-template: ${{ steps.get-template.outputs.template }}
+          workspace: ${{ github.workspace }}
+
+      # Validate early, and validate often! Validation should be run any time an
+      # issue is interacted with, to ensure that any changes to the issue body
+      # are valid.
+      - name: Validate Request
+        id: validate
+        uses: issue-ops/validator@v3
+        env:
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+          GH_ENTERPRISE_TOKEN: ${{ secrets.GH_ENTERPRISE_TOKEN }}
+        with:
+          add-comment: true
+          github-token: ${{ steps.token.outputs.token }}
+          issue-form-template: ${{ steps.get-template.outputs.template }}
+          issue-number: ${{ github.event.issue.number }}
+          parsed-issue-body: ${{ steps.parse.outputs.json }}
+          workspace: ${{ github.workspace }}
+
+      # If validation passed, add the validated label to the issue.
+      - if: ${{ steps.validate.outputs.result == 'success' }}
+        name: Add Validated Label
+        id: add-label
+        uses: issue-ops/labeler@v2
+        with:
+          action: add
+          github_token: ${{ steps.token.outputs.token }}
+          labels: |
+            validated
+          issue_number: ${{ github.event.issue.number }}
+          repository: ${{ github.repository }}
+
+      # If validation passed, process the request.
+      - if: ${{ steps.validate.outputs.result == 'success' }}
+        name: Process Request
+        id: process
+        uses: issue-ops/self-service@main
+        env:
+          GH_TOKEN: ${{ steps.token.outputs.token }}
+          GH_ENTERPRISE_TOKEN: ${{ secrets.GH_ENTERPRISE_TOKEN }}
+        with:
+          action: ${{ steps.get-template.outputs.template }}
+          issue_ops_organization: ${{ github.event.repository.owner.login }}
+          issue_ops_repository: ${{ github.event.repository.name }}
+          issue_number: ${{ github.event.issue.number }}
+          parsed_issue_body: ${{ steps.parse.outputs.json }}

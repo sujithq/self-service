@@ -87,6 +87,7 @@
     "@octokit/openapi-types": "^24.0.0",
     "@octokit/types": "^13.8.0",
     "@rollup/plugin-commonjs": "^28.0.2",
+    "@rollup/plugin-json": "^6.1.0",
     "@rollup/plugin-node-resolve": "^16.0.0",
     "@rollup/plugin-typescript": "^12.1.2",
     "@tailwindcss/postcss": "^4.0.14",

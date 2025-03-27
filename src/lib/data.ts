@@ -9,6 +9,7 @@ import { Category } from './enums'
  * This is used to generate the list of operations in the Self-Service UI.
  */
 export const AvailableIssueOps: {
+  approvers: string[]
   assignees: string[]
   category: Category
   description: string
@@ -18,6 +19,7 @@ export const AvailableIssueOps: {
   label: string
   name: string
 }[] = IssueOps.map((issueOp) => ({
+  approvers: issueOp.approvers as string[],
   assignees: issueOp.assignees as string[],
   category: issueOp.category as Category,
   description: issueOp.description as string,

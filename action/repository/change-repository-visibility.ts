@@ -1,19 +1,23 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { Octokit } from '@octokit/rest'
-import {
+import type {
   ChangeRepositoryVisibilityBody,
+  IssueOpsInputs,
   RepositoryVisibility
 } from '../types.js'
-import { getIssueOpsInputs } from '../utils/inputs.js'
 import { addComment, closeIssue } from '../utils/issues.js'
 import { DEMO_MODE } from '../utils/mode.js'
 
-// TODO: If setting to public, this should require approval.
-
-export async function changeRepositoryVisibility(): Promise<void> {
-  const issueOps = getIssueOpsInputs()
-
+/**
+ * Change the visibility of a repository.
+ *
+ * @param issueOpsInputs IssueOps Inputs
+ * @returns Resolves when the action is complete.
+ */
+export async function changeRepositoryVisibility(
+  issueOpsInputs: IssueOpsInputs
+): Promise<void> {
   // Get the action inputs
   const issue: ChangeRepositoryVisibilityBody = JSON.parse(
     core.getInput('parsed_issue_body', {
@@ -45,9 +49,9 @@ export async function changeRepositoryVisibility(): Promise<void> {
   })
   core.info(`Repository Information: ${JSON.stringify(repo)}`)
 
-  // Rename the repository (when not in demo mode)
-  if (!DEMO_MODE && repo.archived === false)
-    await octokit.repos.update({
+  // Change the visibility (when not in demo mode)
+  if (!DEMO_MODE)
+    await octokit.rest.repos.update({
       owner: issue.change_repository_visibility_organization,
       repo: issue.change_repository_visibility_name,
       // @ts-expect-error The `internal` visibility option is not included in
@@ -59,9 +63,9 @@ export async function changeRepositoryVisibility(): Promise<void> {
   // Add a comment to the issue
   await addComment(
     octokit,
-    issueOps.organization,
-    issueOps.repository,
-    issueOps.issueNumber,
+    issueOpsInputs.organization,
+    issueOpsInputs.repository,
+    issueOpsInputs.issueNumber,
     repo.archived === false
       ? `Set repository \`${issue.change_repository_visibility_organization}/${issue.change_repository_visibility_name}\` to \`${issue.change_repository_visibility_visibility}\` visibility`
       : `Repository \`${issue.change_repository_visibility_organization}/${issue.change_repository_visibility_name}\` is already \`${issue.change_repository_visibility_visibility}\` visibility`
@@ -70,8 +74,8 @@ export async function changeRepositoryVisibility(): Promise<void> {
   // Close the issue
   await closeIssue(
     octokit,
-    issueOps.organization,
-    issueOps.repository,
-    issueOps.issueNumber
+    issueOpsInputs.organization,
+    issueOpsInputs.repository,
+    issueOpsInputs.issueNumber
   )
 }

@@ -1,14 +1,19 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { Octokit } from '@octokit/rest'
-import { CreateProjectBody } from '../types.js'
-import { getIssueOpsInputs } from '../utils/inputs.js'
+import type { CreateProjectBody, IssueOpsInputs } from '../types.js'
 import { addComment, closeIssue } from '../utils/issues.js'
 import { DEMO_MODE } from '../utils/mode.js'
 
-export async function createProject(): Promise<void> {
-  const issueOps = getIssueOpsInputs()
-
+/**
+ * Create a organization project.
+ *
+ * @param issueOpsInputs IssueOps Inputs
+ * @returns Resolves when the action is complete.
+ */
+export async function createProject(
+  issueOpsInputs: IssueOpsInputs
+): Promise<void> {
   // Get the action inputs
   const issue: CreateProjectBody = JSON.parse(
     core.getInput('parsed_issue_body', {
@@ -95,17 +100,17 @@ export async function createProject(): Promise<void> {
   // Add a comment to the issue
   await addComment(
     octokit,
-    issueOps.organization,
-    issueOps.repository,
-    issueOps.issueNumber,
+    issueOpsInputs.organization,
+    issueOpsInputs.repository,
+    issueOpsInputs.issueNumber,
     `Created project [\`${issue.create_project_title}\`](https://github.com/orgs/${issue.create_project_organization}/projects/${projectNumber})`
   )
 
   // Close the issue
   await closeIssue(
     octokit,
-    issueOps.organization,
-    issueOps.repository,
-    issueOps.issueNumber
+    issueOpsInputs.organization,
+    issueOpsInputs.repository,
+    issueOpsInputs.issueNumber
   )
 }

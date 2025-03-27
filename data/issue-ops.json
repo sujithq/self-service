@@ -1,5 +1,6 @@
 [
   {
+    "approvers": [],
     "assignees": [],
     "category": "organization",
     "description": "Create an organization announcement banner.",
@@ -10,6 +11,7 @@
     "name": "Announcement"
   },
   {
+    "approvers": [],
     "assignees": [],
     "category": "organization",
     "description": "Create a project for your organization users and repositories.",
@@ -20,6 +22,7 @@
     "name": "Project"
   },
   {
+    "approvers": [],
     "assignees": [],
     "category": "organization",
     "description": "Create an organization variable to use in your GitHub Actions workflows.",
@@ -30,6 +33,7 @@
     "name": "GitHub Actions Variable"
   },
   {
+    "approvers": ["@issue-ops/maintainers"],
     "assignees": [],
     "category": "organization",
     "description": "Transfer a repository. Requires enterprise admin approval.",
@@ -40,6 +44,7 @@
     "name": "Repository Transfer"
   },
   {
+    "approvers": ["@issue-ops/maintainers"],
     "assignees": [],
     "category": "repository",
     "description": "Create a new repository in your organization.",
@@ -50,6 +55,7 @@
     "name": "Create Repository"
   },
   {
+    "approvers": [],
     "assignees": [],
     "category": "repository",
     "description": "Rename a repository in your organization.",
@@ -60,6 +66,7 @@
     "name": "Rename Repository"
   },
   {
+    "approvers": [],
     "assignees": [],
     "category": "repository",
     "description": "Archive a repository in your organization, converting it to read-only.",
@@ -70,6 +77,7 @@
     "name": "Archive Repository"
   },
   {
+    "approvers": ["@issue-ops/maintainers"],
     "assignees": [],
     "category": "repository",
     "description": "Change the visibility of your repository.",
@@ -80,6 +88,7 @@
     "name": "Change Visibility"
   },
   {
+    "approvers": [],
     "assignees": [],
     "category": "repository",
     "description": "Unarchive a repository.",

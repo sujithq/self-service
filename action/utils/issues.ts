@@ -7,11 +7,12 @@ import { Octokit } from '@octokit/rest'
 /**
  * Adds a comment to an issue
  *
- * @param octokit Octokit instance
- * @param organization Organization where the issue is located
- * @param repository Repository where the issue is located
- * @param issueNumber Issue number
- * @param comment Comment to add
+ * @param octokit Octokit Instance
+ * @param organization Organization
+ * @param repository Repository
+ * @param issueNumber Issue Number
+ * @param comment Comment Body
+ * @returns Resolves when the action is complete.
  */
 export async function addComment(
   octokit: Octokit,
@@ -22,7 +23,7 @@ export async function addComment(
 ): Promise<void> {
   core.info(`Adding Comment: ${organization}/${repository} #${issueNumber}`)
 
-  await octokit.issues.createComment({
+  await octokit.rest.issues.createComment({
     owner: organization,
     repo: repository,
     issue_number: issueNumber,
@@ -34,20 +35,29 @@ export async function addComment(
 
 /**
  * Closes an issue
+ *
+ * @param octokit Octokit Instance
+ * @param organization Organization
+ * @param repository Repository
+ * @param issueNumber Issue Number
+ * @param reason Reason for Closure
+ * @returns Resolves when the action is complete.
  */
 export async function closeIssue(
   octokit: Octokit,
   organization: string,
   repository: string,
-  issueNumber: number
+  issueNumber: number,
+  reason: 'completed' | 'not_planned' = 'completed'
 ): Promise<void> {
   core.info(`Closing Issue: ${organization}/${repository} #${issueNumber}`)
 
-  await octokit.issues.update({
+  await octokit.rest.issues.update({
     owner: organization,
     repo: repository,
     issue_number: issueNumber,
-    state: 'closed'
+    state: 'closed',
+    state_reason: reason
   })
 
   core.info(`Closed Issue: ${organization}/${repository} #${issueNumber}`)

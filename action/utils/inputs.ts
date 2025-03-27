@@ -1,6 +1,13 @@
 import * as core from '@actions/core'
 import type { IssueOpsInputs } from '../types'
 
+/**
+ * Gets the inputs for the IssueOps action.
+ *
+ * These inputs are used for all actions, regardless of other inputs.
+ *
+ * @returns The inputs for the IssueOps action.
+ */
 export function getIssueOpsInputs(): IssueOpsInputs {
   const organization = core.getInput('issue_ops_organization', {
     required: true

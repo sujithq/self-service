@@ -1,14 +1,19 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { Octokit } from '@octokit/rest'
-import { UnarchiveRepositoryBody } from '../types.js'
-import { getIssueOpsInputs } from '../utils/inputs.js'
+import type { IssueOpsInputs, UnarchiveRepositoryBody } from '../types.js'
 import { addComment, closeIssue } from '../utils/issues.js'
 import { DEMO_MODE } from '../utils/mode.js'
 
-export async function unarchiveRepository(): Promise<void> {
-  const issueOps = getIssueOpsInputs()
-
+/**
+ * Unarchive a repository.
+ *
+ * @param issueOpsInputs IssueOps Inputs
+ * @returns Resolves when the action is complete.
+ */
+export async function unarchiveRepository(
+  issueOpsInputs: IssueOpsInputs
+): Promise<void> {
   // Get the action inputs
   const issue: UnarchiveRepositoryBody = JSON.parse(
     core.getInput('parsed_issue_body', {
@@ -48,9 +53,9 @@ export async function unarchiveRepository(): Promise<void> {
   // Add a comment to the issue
   await addComment(
     octokit,
-    issueOps.organization,
-    issueOps.repository,
-    issueOps.issueNumber,
+    issueOpsInputs.organization,
+    issueOpsInputs.repository,
+    issueOpsInputs.issueNumber,
     repo.archived === false
       ? `Unarchived repository \`${issue.unarchive_repository_organization}/${issue.unarchive_repository_name}\``
       : `Repository is already unarchived \`${issue.unarchive_repository_organization}/${issue.unarchive_repository_name}\``
@@ -59,8 +64,8 @@ export async function unarchiveRepository(): Promise<void> {
   // Close the issue
   await closeIssue(
     octokit,
-    issueOps.organization,
-    issueOps.repository,
-    issueOps.issueNumber
+    issueOpsInputs.organization,
+    issueOpsInputs.repository,
+    issueOpsInputs.issueNumber
   )
 }

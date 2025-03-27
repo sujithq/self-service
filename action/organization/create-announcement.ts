@@ -1,14 +1,19 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { Octokit } from '@octokit/rest'
-import { CreateAnnouncementBody } from '../types.js'
-import { getIssueOpsInputs } from '../utils/inputs.js'
+import type { CreateAnnouncementBody, IssueOpsInputs } from '../types.js'
 import { addComment, closeIssue } from '../utils/issues.js'
 import { DEMO_MODE } from '../utils/mode.js'
 
-export async function createAnnouncement(): Promise<void> {
-  const issueOps = getIssueOpsInputs()
-
+/**
+ * Create an announcement banner for an organization.
+ *
+ * @param issueOpsInputs IssueOps Inputs
+ * @returns Resolves when the action is complete.
+ */
+export async function createAnnouncement(
+  issueOpsInputs: IssueOpsInputs
+): Promise<void> {
   // Get the action inputs
   const issue: CreateAnnouncementBody = JSON.parse(
     core.getInput('parsed_issue_body', {
@@ -47,17 +52,17 @@ export async function createAnnouncement(): Promise<void> {
   // Add a comment to the issue
   await addComment(
     octokit,
-    issueOps.organization,
-    issueOps.repository,
-    issueOps.issueNumber,
+    issueOpsInputs.organization,
+    issueOpsInputs.repository,
+    issueOpsInputs.issueNumber,
     `Created announcement expiring \`${issue.create_announcement_expiration_date}`
   )
 
   // Close the issue
   await closeIssue(
     octokit,
-    issueOps.organization,
-    issueOps.repository,
-    issueOps.issueNumber
+    issueOpsInputs.organization,
+    issueOpsInputs.repository,
+    issueOpsInputs.issueNumber
   )
 }

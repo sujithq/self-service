@@ -34760,26 +34760,128 @@ const Octokit = Octokit$1.plugin(requestLog, legacyRestEndpointMethods, paginate
   }
 );
 
-function getIssueOpsInputs() {
-    const organization = coreExports.getInput('issue_ops_organization', {
-        required: true
-    });
-    const repository = coreExports.getInput('issue_ops_repository', {
-        required: true
-    });
-    const issueNumber = parseInt(coreExports.getInput('issue_number', {
-        required: true
-    }), 10);
-    coreExports.info('IssueOps Inputs');
-    coreExports.info(`  Organization: ${organization}`);
-    coreExports.info(`  Repository: ${repository}`);
-    coreExports.info(`  Issue Number: ${issueNumber}`);
-    return {
-        organization,
-        repository,
-        issueNumber
-    };
-}
+var IssueOps = [
+	{
+		approvers: [
+		],
+		assignees: [
+		],
+		category: "organization",
+		description: "Create an organization announcement banner.",
+		icon: "Volume2",
+		issueFormTemplate: "create-announcement.yml",
+		issueTitle: "[IssueOps] Create a new announcement",
+		label: "create-announcement",
+		name: "Announcement"
+	},
+	{
+		approvers: [
+		],
+		assignees: [
+		],
+		category: "organization",
+		description: "Create a project for your organization users and repositories.",
+		icon: "SquareKanban",
+		issueFormTemplate: "create-project.yml",
+		issueTitle: "[IssueOps] Create a new project",
+		label: "create-project",
+		name: "Project"
+	},
+	{
+		approvers: [
+		],
+		assignees: [
+		],
+		category: "organization",
+		description: "Create an organization variable to use in your GitHub Actions workflows.",
+		icon: "Variable",
+		issueFormTemplate: "create-actions-variable.yml",
+		issueTitle: "[IssueOps] Create a new GitHub Actions variable",
+		label: "create-actions-variable",
+		name: "GitHub Actions Variable"
+	},
+	{
+		approvers: [
+			"@issue-ops/maintainers"
+		],
+		assignees: [
+		],
+		category: "organization",
+		description: "Transfer a repository. Requires enterprise admin approval.",
+		icon: "FolderSync",
+		issueFormTemplate: "create-repository-transfer.yml",
+		issueTitle: "[IssueOps] Create a new repository transfer",
+		label: "create-repository-transfer",
+		name: "Repository Transfer"
+	},
+	{
+		approvers: [
+			"@issue-ops/maintainers"
+		],
+		assignees: [
+		],
+		category: "repository",
+		description: "Create a new repository in your organization.",
+		icon: "BookDashed",
+		issueFormTemplate: "create-repository.yml",
+		issueTitle: "[IssueOps] Create a new repository",
+		label: "create-repository",
+		name: "Create Repository"
+	},
+	{
+		approvers: [
+		],
+		assignees: [
+		],
+		category: "repository",
+		description: "Rename a repository in your organization.",
+		icon: "BookMarked",
+		issueFormTemplate: "rename-repository.yml",
+		issueTitle: "[IssueOps] Rename a repository",
+		label: "rename-repository",
+		name: "Rename Repository"
+	},
+	{
+		approvers: [
+		],
+		assignees: [
+		],
+		category: "repository",
+		description: "Archive a repository in your organization, converting it to read-only.",
+		icon: "BookLock",
+		issueFormTemplate: "archive-repository.yml",
+		issueTitle: "[IssueOps] Archive a repository",
+		label: "archive-repository",
+		name: "Archive Repository"
+	},
+	{
+		approvers: [
+			"@issue-ops/maintainers"
+		],
+		assignees: [
+		],
+		category: "repository",
+		description: "Change the visibility of your repository.",
+		icon: "BookUp2",
+		issueFormTemplate: "change-repository-visibility.yml",
+		issueTitle: "[IssueOps] Change the visibility of a repository",
+		label: "change-repository-visibility",
+		name: "Change Visibility"
+	},
+	{
+		approvers: [
+		],
+		assignees: [
+		],
+		category: "repository",
+		description: "Unarchive a repository.",
+		icon: "BookUp2",
+		issueFormTemplate: "unarchive-repository.yml",
+		issueTitle: "[IssueOps] Unarchive a repository",
+		label: "unarchive-repository",
+		name: "Unarchive Repository"
+	}
+];
 
 /**
  * Utility functions for working with issues
@@ -34787,15 +34889,16 @@ function getIssueOpsInputs() {
 /**
  * Adds a comment to an issue
  *
- * @param octokit Octokit instance
- * @param organization Organization where the issue is located
- * @param repository Repository where the issue is located
- * @param issueNumber Issue number
- * @param comment Comment to add
+ * @param octokit Octokit Instance
+ * @param organization Organization
+ * @param repository Repository
+ * @param issueNumber Issue Number
+ * @param comment Comment Body
+ * @returns Resolves when the action is complete.
  */
 async function addComment(octokit, organization, repository, issueNumber, comment) {
     coreExports.info(`Adding Comment: ${organization}/${repository} #${issueNumber}`);
-    await octokit.issues.createComment({
+    await octokit.rest.issues.createComment({
         owner: organization,
         repo: repository,
         issue_number: issueNumber,
@@ -34805,14 +34908,22 @@ async function addComment(octokit, organization, repository, issueNumber, commen
 }
 /**
  * Closes an issue
+ *
+ * @param octokit Octokit Instance
+ * @param organization Organization
+ * @param repository Repository
+ * @param issueNumber Issue Number
+ * @param reason Reason for Closure
+ * @returns Resolves when the action is complete.
  */
-async function closeIssue(octokit, organization, repository, issueNumber) {
+async function closeIssue(octokit, organization, repository, issueNumber, reason = 'completed') {
     coreExports.info(`Closing Issue: ${organization}/${repository} #${issueNumber}`);
-    await octokit.issues.update({
+    await octokit.rest.issues.update({
         owner: organization,
         repo: repository,
         issue_number: issueNumber,
-        state: 'closed'
+        state: 'closed',
+        state_reason: reason
     });
     coreExports.info(`Closed Issue: ${organization}/${repository} #${issueNumber}`);
 }
@@ -34825,88 +34936,54 @@ async function closeIssue(octokit, organization, repository, issueNumber) {
  */
 const DEMO_MODE = githubExports.context.repo.owner === 'issue-ops' ? true : false;
 
-async function archiveRepository() {
-    const issueOps = getIssueOpsInputs();
+/**
+ * Create a repository.
+ *
+ * @param issueOpsInputs IssueOps Inputs
+ * @returns Resolves when the action is complete.
+ */
+async function createRepository(issueOpsInputs) {
     // Get the action inputs
     const issue = JSON.parse(coreExports.getInput('parsed_issue_body', {
         required: true
     }));
     coreExports.info('Action Inputs');
-    coreExports.info(`  Organization: ${issue.archive_repository_organization}`);
-    coreExports.info(`  Repository: ${issue.archive_repository_name}`);
+    coreExports.info(`  Organization: ${issue.create_repository_organization}`);
+    coreExports.info(`  Repository Name: ${issue.create_repository_name}`);
+    coreExports.info(`  Description: ${issue.create_repository_description}`);
+    coreExports.info(`  Visibility: ${issue.create_repository_visibility}`);
+    coreExports.info(`  Auto-Init: ${issue.create_repository_auto_init}`);
     // If the organization name is not the same as the organization where this
     // action is running, we need to use the enterprise token.
     const octokit = new Octokit({
-        auth: issue.archive_repository_organization === githubExports.context.repo.owner
+        auth: issue.create_repository_organization === githubExports.context.repo.owner
             ? process.env.GH_TOKEN
             : process.env.GH_ENTERPRISE_TOKEN
     });
-    // Get the repository information
-    const { data: repo } = await octokit.repos.get({
-        owner: issue.archive_repository_organization,
-        repo: issue.archive_repository_name
-    });
-    coreExports.info(`Repository Information: ${JSON.stringify(repo)}`);
-    // Rename the repository (when not in demo mode)
-    if (!DEMO_MODE && repo.archived === false)
-        await octokit.repos.update({
-            owner: issue.archive_repository_organization,
-            repo: issue.archive_repository_name,
-            archived: true
+    // Create the repository (when not in demo mode)
+    if (!DEMO_MODE)
+        await octokit.rest.repos.createInOrg({
+            org: issue.create_repository_organization,
+            name: issue.create_repository_name,
+            description: issue.create_repository_description,
+            // @ts-expect-error The `internal` visibility option is not included in
+            // the TypeScript type definition for the `repos.createInOrg` method.
+            visibility: issue.create_repository_visibility,
+            auto_init: issue.create_repository_auto_init.selected.includes('Enable')
         });
     // Add a comment to the issue
-    await addComment(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber, repo.archived === false
-        ? `Archived repository \`${issue.archive_repository_organization}/${issue.archive_repository_name}\``
-        : `Repository is already archived \`${issue.archive_repository_organization}/${issue.archive_repository_name}\``);
+    await addComment(octokit, issueOpsInputs.organization, issueOpsInputs.repository, issueOpsInputs.issueNumber, `Created repository [\`${issue.create_repository_organization}/${issue.create_repository_name}\`](https://github.com/${issue.create_repository_organization}/${issue.create_repository_name})`);
     // Close the issue
-    await closeIssue(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber);
+    await closeIssue(octokit, issueOpsInputs.organization, issueOpsInputs.repository, issueOpsInputs.issueNumber);
 }
 
-// TODO: If setting to public, this should require approval.
-async function changeRepositoryVisibility() {
-    const issueOps = getIssueOpsInputs();
-    // Get the action inputs
-    const issue = JSON.parse(coreExports.getInput('parsed_issue_body', {
-        required: true
-    }));
-    coreExports.info('Action Inputs');
-    coreExports.info(`  Organization: ${issue.change_repository_visibility_organization}`);
-    coreExports.info(`  Repository: ${issue.change_repository_visibility_name}`);
-    coreExports.info(`  Visibility: ${issue.change_repository_visibility_visibility}`);
-    // If the organization name is not the same as the organization where this
-    // action is running, we need to use the enterprise token.
-    const octokit = new Octokit({
-        auth: issue.change_repository_visibility_organization ===
-            githubExports.context.repo.owner
-            ? process.env.GH_TOKEN
-            : process.env.GH_ENTERPRISE_TOKEN
-    });
-    // Get the repository information
-    const { data: repo } = await octokit.repos.get({
-        owner: issue.change_repository_visibility_organization,
-        repo: issue.change_repository_visibility_name
-    });
-    coreExports.info(`Repository Information: ${JSON.stringify(repo)}`);
-    // Rename the repository (when not in demo mode)
-    if (!DEMO_MODE && repo.archived === false)
-        await octokit.repos.update({
-            owner: issue.change_repository_visibility_organization,
-            repo: issue.change_repository_visibility_name,
-            visibility: 
-            // Note: The `internal` visibility option is not included in the
-            // TypeScript type definition for the `repos.update` method.
-            issue.change_repository_visibility_visibility.toLowerCase()
-        });
-    // Add a comment to the issue
-    await addComment(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber, repo.archived === false
-        ? `Set repository \`${issue.change_repository_visibility_organization}/${issue.change_repository_visibility_name}\` to \`${issue.change_repository_visibility_visibility}\` visibility`
-        : `Repository \`${issue.change_repository_visibility_organization}/${issue.change_repository_visibility_name}\` is already \`${issue.change_repository_visibility_visibility}\` visibility`);
-    // Close the issue
-    await closeIssue(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber);
-}
-
-async function createActionsVariable() {
-    const issueOps = getIssueOpsInputs();
+/**
+ * Create an organization actions variable.
+ *
+ * @param issueOpsInputs IssueOps Inputs
+ * @returns Resolves when the action is complete.
+ */
+async function createActionsVariable(issueOpsInputs) {
     // Get the action inputs
     const issue = JSON.parse(coreExports.getInput('parsed_issue_body', {
         required: true
@@ -34953,13 +35030,18 @@ async function createActionsVariable() {
                 visibility: issue.create_actions_variable_visibility
             });
     // Add a comment to the issue
-    await addComment(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber, `Created organization variable [\`${issue.create_actions_variable_name}\`](https://github.com/organizations/${issue.create_actions_variable_organization}/settings/variables/actions)`);
+    await addComment(octokit, issueOpsInputs.organization, issueOpsInputs.repository, issueOpsInputs.issueNumber, `Created organization variable [\`${issue.create_actions_variable_name}\`](https://github.com/organizations/${issue.create_actions_variable_organization}/settings/variables/actions)`);
     // Close the issue
-    await closeIssue(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber);
+    await closeIssue(octokit, issueOpsInputs.organization, issueOpsInputs.repository, issueOpsInputs.issueNumber);
 }
 
-async function createAnnouncement() {
-    const issueOps = getIssueOpsInputs();
+/**
+ * Create an announcement banner for an organization.
+ *
+ * @param issueOpsInputs IssueOps Inputs
+ * @returns Resolves when the action is complete.
+ */
+async function createAnnouncement(issueOpsInputs) {
     // Get the action inputs
     const issue = JSON.parse(coreExports.getInput('parsed_issue_body', {
         required: true
@@ -34986,13 +35068,18 @@ async function createAnnouncement() {
             user_dismissible: issue.create_announcement_user_dismissible.selected.includes('Enable')
         });
     // Add a comment to the issue
-    await addComment(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber, `Created announcement expiring \`${issue.create_announcement_expiration_date}`);
+    await addComment(octokit, issueOpsInputs.organization, issueOpsInputs.repository, issueOpsInputs.issueNumber, `Created announcement expiring \`${issue.create_announcement_expiration_date}`);
     // Close the issue
-    await closeIssue(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber);
+    await closeIssue(octokit, issueOpsInputs.organization, issueOpsInputs.repository, issueOpsInputs.issueNumber);
 }
 
-async function createProject() {
-    const issueOps = getIssueOpsInputs();
+/**
+ * Create a organization project.
+ *
+ * @param issueOpsInputs IssueOps Inputs
+ * @returns Resolves when the action is complete.
+ */
+async function createProject(issueOpsInputs) {
     // Get the action inputs
     const issue = JSON.parse(coreExports.getInput('parsed_issue_body', {
         required: true
@@ -35054,13 +35141,18 @@ async function createProject() {
         projectNumber = response.data.createProjectV2.projectV2.number;
     }
     // Add a comment to the issue
-    await addComment(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber, `Created project [\`${issue.create_project_title}\`](https://github.com/orgs/${issue.create_project_organization}/projects/${projectNumber})`);
+    await addComment(octokit, issueOpsInputs.organization, issueOpsInputs.repository, issueOpsInputs.issueNumber, `Created project [\`${issue.create_project_title}\`](https://github.com/orgs/${issue.create_project_organization}/projects/${projectNumber})`);
     // Close the issue
-    await closeIssue(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber);
+    await closeIssue(octokit, issueOpsInputs.organization, issueOpsInputs.repository, issueOpsInputs.issueNumber);
 }
 
-async function createRepositoryTransfer() {
-    const issueOps = getIssueOpsInputs();
+/**
+ * Create a repository transfer request.
+ *
+ * @param issueOpsInputs IssueOps Inputs
+ * @returns Resolves when the action is complete.
+ */
+async function createRepositoryTransfer(issueOpsInputs) {
     // Get the action inputs
     const issue = JSON.parse(coreExports.getInput('parsed_issue_body', {
         required: true
@@ -35085,47 +35177,106 @@ async function createRepositoryTransfer() {
             new_owner: issue.create_repository_transfer_target_organization
         });
     // Add a comment to the issue
-    await addComment(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber, `Transferred \`${issue.create_repository_transfer_name}\` from \`${issue.create_repository_transfer_current_organization} to \`${issue.create_repository_transfer_target_organization}\``);
+    await addComment(octokit, issueOpsInputs.organization, issueOpsInputs.repository, issueOpsInputs.issueNumber, `Transferred \`${issue.create_repository_transfer_name}\` from \`${issue.create_repository_transfer_current_organization} to \`${issue.create_repository_transfer_target_organization}\``);
     // Close the issue
-    await closeIssue(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber);
+    await closeIssue(octokit, issueOpsInputs.organization, issueOpsInputs.repository, issueOpsInputs.issueNumber);
 }
 
-async function createRepository() {
-    const issueOps = getIssueOpsInputs();
+/**
+ * Archive a repository.
+ *
+ * @param issueOpsInputs IssueOps Inputs
+ * @returns Resolves when the action is complete.
+ */
+async function archiveRepository(issueOpsInputs) {
     // Get the action inputs
     const issue = JSON.parse(coreExports.getInput('parsed_issue_body', {
         required: true
     }));
     coreExports.info('Action Inputs');
-    coreExports.info(`  Organization: ${issue.create_repository_organization}`);
-    coreExports.info(`  Repository Name: ${issue.create_repository_name}`);
-    coreExports.info(`  Description: ${issue.create_repository_description}`);
-    coreExports.info(`  Visibility: ${issue.create_repository_visibility}`);
-    coreExports.info(`  Auto-Init: ${issue.create_repository_auto_init}`);
+    coreExports.info(`  Organization: ${issue.archive_repository_organization}`);
+    coreExports.info(`  Repository: ${issue.archive_repository_name}`);
     // If the organization name is not the same as the organization where this
     // action is running, we need to use the enterprise token.
     const octokit = new Octokit({
-        auth: issue.create_repository_organization === githubExports.context.repo.owner
+        auth: issue.archive_repository_organization === githubExports.context.repo.owner
             ? process.env.GH_TOKEN
             : process.env.GH_ENTERPRISE_TOKEN
     });
-    // Create the repository (when not in demo mode)
-    if (!DEMO_MODE)
-        await octokit.rest.repos.createInOrg({
-            org: issue.create_repository_organization,
-            name: issue.create_repository_name,
-            description: issue.create_repository_description,
-            visibility: issue.create_repository_visibility,
-            auto_init: issue.create_repository_auto_init.selected.includes('Enable')
+    // Get the repository information
+    const { data: repo } = await octokit.repos.get({
+        owner: issue.archive_repository_organization,
+        repo: issue.archive_repository_name
+    });
+    coreExports.info(`Repository Information: ${JSON.stringify(repo)}`);
+    // Rename the repository (when not in demo mode)
+    if (!DEMO_MODE && repo.archived === false)
+        await octokit.repos.update({
+            owner: issue.archive_repository_organization,
+            repo: issue.archive_repository_name,
+            archived: true
         });
     // Add a comment to the issue
-    await addComment(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber, `Created repository [\`${issue.create_repository_organization}/${issue.create_repository_name}\`](https://github.com/${issue.create_repository_organization}/${issue.create_repository_name})`);
+    await addComment(octokit, issueOpsInputs.organization, issueOpsInputs.repository, issueOpsInputs.issueNumber, repo.archived === false
+        ? `Archived repository \`${issue.archive_repository_organization}/${issue.archive_repository_name}\``
+        : `Repository is already archived \`${issue.archive_repository_organization}/${issue.archive_repository_name}\``);
     // Close the issue
-    await closeIssue(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber);
+    await closeIssue(octokit, issueOpsInputs.organization, issueOpsInputs.repository, issueOpsInputs.issueNumber);
 }
 
-async function renameRepository() {
-    const issueOps = getIssueOpsInputs();
+/**
+ * Change the visibility of a repository.
+ *
+ * @param issueOpsInputs IssueOps Inputs
+ * @returns Resolves when the action is complete.
+ */
+async function changeRepositoryVisibility(issueOpsInputs) {
+    // Get the action inputs
+    const issue = JSON.parse(coreExports.getInput('parsed_issue_body', {
+        required: true
+    }));
+    coreExports.info('Action Inputs');
+    coreExports.info(`  Organization: ${issue.change_repository_visibility_organization}`);
+    coreExports.info(`  Repository: ${issue.change_repository_visibility_name}`);
+    coreExports.info(`  Visibility: ${issue.change_repository_visibility_visibility}`);
+    // If the organization name is not the same as the organization where this
+    // action is running, we need to use the enterprise token.
+    const octokit = new Octokit({
+        auth: issue.change_repository_visibility_organization ===
+            githubExports.context.repo.owner
+            ? process.env.GH_TOKEN
+            : process.env.GH_ENTERPRISE_TOKEN
+    });
+    // Get the repository information
+    const { data: repo } = await octokit.repos.get({
+        owner: issue.change_repository_visibility_organization,
+        repo: issue.change_repository_visibility_name
+    });
+    coreExports.info(`Repository Information: ${JSON.stringify(repo)}`);
+    // Change the visibility (when not in demo mode)
+    if (!DEMO_MODE)
+        await octokit.rest.repos.update({
+            owner: issue.change_repository_visibility_organization,
+            repo: issue.change_repository_visibility_name,
+            // @ts-expect-error The `internal` visibility option is not included in
+            // the TypeScript type definition for the `repos.update` method.
+            visibility: issue.change_repository_visibility_visibility.toLowerCase()
+        });
+    // Add a comment to the issue
+    await addComment(octokit, issueOpsInputs.organization, issueOpsInputs.repository, issueOpsInputs.issueNumber, repo.archived === false
+        ? `Set repository \`${issue.change_repository_visibility_organization}/${issue.change_repository_visibility_name}\` to \`${issue.change_repository_visibility_visibility}\` visibility`
+        : `Repository \`${issue.change_repository_visibility_organization}/${issue.change_repository_visibility_name}\` is already \`${issue.change_repository_visibility_visibility}\` visibility`);
+    // Close the issue
+    await closeIssue(octokit, issueOpsInputs.organization, issueOpsInputs.repository, issueOpsInputs.issueNumber);
+}
+
+/**
+ * Rename a repository.
+ *
+ * @param issueOpsInputs IssueOps Inputs
+ * @returns Resolves when the action is complete.
+ */
+async function renameRepository(issueOpsInputs) {
     // Get the action inputs
     const issue = JSON.parse(coreExports.getInput('parsed_issue_body', {
         required: true
@@ -35155,15 +35306,20 @@ async function renameRepository() {
             name: issue.rename_repository_new_name
         });
     // Add a comment to the issue
-    await addComment(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber, repo.name !== issue.rename_repository_new_name
+    await addComment(octokit, issueOpsInputs.organization, issueOpsInputs.repository, issueOpsInputs.issueNumber, repo.name !== issue.rename_repository_new_name
         ? `Renamed repository \`${issue.rename_repository_organization}/${issue.rename_repository_current_name}\` to [\`${issue.rename_repository_organization}/${issue.rename_repository_new_name}\`](https://github.com/${issue.rename_repository_organization}/${issue.rename_repository_new_name})`
         : `Repository is already named [\`${issue.rename_repository_organization}/${issue.rename_repository_new_name}\`](https://github.com/${issue.rename_repository_organization}/${issue.rename_repository_new_name})`);
     // Close the issue
-    await closeIssue(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber);
+    await closeIssue(octokit, issueOpsInputs.organization, issueOpsInputs.repository, issueOpsInputs.issueNumber);
 }
 
-async function unarchiveRepository() {
-    const issueOps = getIssueOpsInputs();
+/**
+ * Unarchive a repository.
+ *
+ * @param issueOpsInputs IssueOps Inputs
+ * @returns Resolves when the action is complete.
+ */
+async function unarchiveRepository(issueOpsInputs) {
     // Get the action inputs
     const issue = JSON.parse(coreExports.getInput('parsed_issue_body', {
         required: true
@@ -35193,39 +35349,294 @@ async function unarchiveRepository() {
             archived: false
         });
     // Add a comment to the issue
-    await addComment(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber, repo.archived === false
+    await addComment(octokit, issueOpsInputs.organization, issueOpsInputs.repository, issueOpsInputs.issueNumber, repo.archived === false
         ? `Unarchived repository \`${issue.unarchive_repository_organization}/${issue.unarchive_repository_name}\``
         : `Repository is already unarchived \`${issue.unarchive_repository_organization}/${issue.unarchive_repository_name}\``);
     // Close the issue
-    await closeIssue(octokit, issueOps.organization, issueOps.repository, issueOps.issueNumber);
+    await closeIssue(octokit, issueOpsInputs.organization, issueOpsInputs.repository, issueOpsInputs.issueNumber);
 }
 
-// If this action is running in the `issue-ops/self-service` repository, don't
-// actually run anything. This repository hosts the self-service page and
-// actions, but shouldn't actually run them.
-if (DEMO_MODE)
-    coreExports.info('Running in `issue-ops/self-service`...switching to demo mode!');
-// Get the action. This determines what function to run.
-const action = coreExports.getInput('action', { required: true })
-    .replace('.yml', '');
-if (action === 'archive-repository')
-    await archiveRepository();
-else if (action === 'change-repository-visibility')
-    await changeRepositoryVisibility();
-else if (action === 'create-actions-variable')
-    await createActionsVariable();
-else if (action === 'create-announcement')
-    await createAnnouncement();
-else if (action === 'create-project')
-    await createProject();
-else if (action === 'create-repository-transfer')
-    await createRepositoryTransfer();
-else if (action === 'create-repository')
-    await createRepository();
-else if (action === 'rename-repository')
-    await renameRepository();
-else if (action === 'unarchive-repository')
-    await unarchiveRepository();
-else
-    coreExports.setFailed(`Unknown Action: ${action}`);
-coreExports.info('Action Complete!');
+function dedent(templ) {
+    var values = [];
+    for (var _i = 1; _i < arguments.length; _i++) {
+        values[_i - 1] = arguments[_i];
+    }
+    var strings = Array.from(typeof templ === 'string' ? [templ] : templ);
+    strings[strings.length - 1] = strings[strings.length - 1].replace(/\r?\n([\t ]*)$/, '');
+    var indentLengths = strings.reduce(function (arr, str) {
+        var matches = str.match(/\n([\t ]+|(?!\s).)/g);
+        if (matches) {
+            return arr.concat(matches.map(function (match) { var _a, _b; return (_b = (_a = match.match(/[\t ]/g)) === null || _a === void 0 ? void 0 : _a.length) !== null && _b !== void 0 ? _b : 0; }));
+        }
+        return arr;
+    }, []);
+    if (indentLengths.length) {
+        var pattern_1 = new RegExp("\n[\t ]{" + Math.min.apply(Math, indentLengths) + "}", 'g');
+        strings = strings.map(function (str) { return str.replace(pattern_1, '\n'); });
+    }
+    strings[0] = strings[0].replace(/^\r?\n/, '');
+    var string = strings[0];
+    values.forEach(function (value, i) {
+        var endentations = string.match(/(?:^|\n)( *)$/);
+        var endentation = endentations ? endentations[1] : '';
+        var indentedValue = value;
+        if (typeof value === 'string' && value.includes('\n')) {
+            indentedValue = String(value)
+                .split('\n')
+                .map(function (str, i) {
+                return i === 0 ? str : "" + endentation + str;
+            })
+                .join('\n');
+        }
+        string += indentedValue + strings[i + 1];
+    });
+    return string;
+}
+
+/**
+ * Checks if a user is a member of a team.
+ *
+ * @param octokit Octokit Instance
+ * @param team Team Name/Slug
+ * @param user User
+ * @returns Whether the user is a member of the team
+ */
+async function isMember(octokit, team, user) {
+    try {
+        await octokit.rest.teams.getMembershipForUserInOrg({
+            org: team.split('/')[0],
+            team_slug: team.split('/')[1],
+            username: user
+        });
+        return true;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    }
+    catch (error) {
+        if (error.status === 404)
+            return false;
+        throw error;
+    }
+}
+
+/**
+ * Add a comment to the issue requesting approval.
+ *
+ * @param issueOpsInputs IssueOps Inputs
+ * @param metadata IssueOps Metadata
+ * @returns Resolves when the comment is added.
+ */
+async function tagApprovers(issueOpsInputs, metadata) {
+    if (metadata.approvers.length === 0)
+        return coreExports.info('No approvals required!');
+    // Comment on the issue and tag the approvers.
+    const approvers = metadata.approvers.map((a) => `- @${a}`).join('\n');
+    let comment = dedent `This request requires approval from the following users and/or teams:
+  
+  ${approvers}
+
+  - To approve this request, add \`/approve\` as a comment.
+  - To deny this request, add \`/deny\` as a comment.`;
+    // If this issue is being reopened or edited, we should also indicate that any
+    // previous approvals are no longer valid.
+    if (['reopened', 'edited'].includes(githubExports.context.payload.action))
+        comment += dedent `
+
+    > [!NOTE]
+    >
+    > This request has been ${githubExports.context.payload.action}! Previous approvals are no longer valid. Please re-approve this request.`;
+    await addComment(new Octokit({
+        auth: process.env.GH_TOKEN
+    }), issueOpsInputs.organization, issueOpsInputs.repository, issueOpsInputs.issueNumber, comment);
+}
+/**
+ * Get the status of the request.
+ *
+ * This will check if the request has been approved or denied by the approvers.
+ * If the request has not been approved or denied, it will return the list of
+ * pending approvers.
+ *
+ * This takes into account when the issue is opened, reopened, or edited. If the
+ * issue has been reopened or edited, it will only include approvals from
+ * **AFTER** the last time it was reopened or edited.
+ *
+ * @param issueOpsInputs IssueOps Inputs
+ * @param metadata IssueOps Metadata
+ * @returns Resolves with the status of the request.
+ */
+async function getStatus(issueOpsInputs, metadata) {
+    const octokit = new Octokit({
+        auth: process.env.GH_TOKEN
+    });
+    // If no approvals are required, return an empty array.
+    if (metadata.approvers.length === 0)
+        return {
+            state: 'approved'
+        };
+    // Keep track of the approvals since the last opened/reopened/edited event.
+    let pending = metadata.approvers.map((a) => a.replaceAll('@', ''));
+    // Get the timeline events for the issue, sorted by date. If the event does
+    // not have a date, ignore it for sorting purposes.
+    const timeline = (await octokit.paginate(octokit.rest.issues.listEventsForTimeline, {
+        owner: issueOpsInputs.organization,
+        repo: issueOpsInputs.repository,
+        issue_number: issueOpsInputs.issueNumber
+    })).sort((a, b) => {
+        if (!('created_at' in a) || !('created_at' in b))
+            return 0;
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+    });
+    // Iterate through the timeline events and check for approvals, denials, or
+    // changes to the issue that would require a reset of the approvals.
+    for (const event of timeline) {
+        // Skip any events that are not used.
+        if (!['commented', 'edited', 'reopened'].includes(event.event))
+            continue;
+        // If the event is the issue being reopened or edited, reset the approvals.
+        if (['edited', 'reopened'].includes(event.event)) {
+            pending = metadata.approvers.map((a) => a.replaceAll('@', ''));
+            continue;
+        }
+        // Skip events if there is no comment body.
+        if (!('body' in event))
+            continue;
+        // Skip events if the body is not `/approve` or `/deny`.
+        if (event.body !== '/approve' && event.body !== '/deny')
+            continue;
+        // Check if the user is an approver (handle is in the approver list).
+        const approver = pending.find((a) => a === event.user.login);
+        if (approver)
+            if (event.body === '/approve')
+                // Approved. Remove them from the pending list.
+                pending = pending.filter((a) => a !== approver);
+            else if (event.body === '/deny')
+                // Denied. Set the state to denied and stop.
+                return {
+                    state: 'denied'
+                };
+        // Check if the user is a member of an approval team.
+        for (const team of pending.filter((a) => a.includes('/'))) {
+            if (await isMember(octokit, team, event.user.login))
+                if (event.body === '/approve')
+                    // Approved. Remove them from the pending list.
+                    pending = pending.filter((a) => a !== team);
+                else if (event.body === '/deny')
+                    // Denied. Set the state to denied and stop.
+                    return {
+                        state: 'denied'
+                    };
+        }
+    }
+    // If there are no pending approvers, set the state to approved. Otherwise,
+    // set the state to pending.
+    return pending.length === 0
+        ? { state: 'approved' }
+        : { state: 'pending', pending };
+}
+
+/**
+ * Gets the inputs for the IssueOps action.
+ *
+ * These inputs are used for all actions, regardless of other inputs.
+ *
+ * @returns The inputs for the IssueOps action.
+ */
+function getIssueOpsInputs() {
+    const organization = coreExports.getInput('issue_ops_organization', {
+        required: true
+    });
+    const repository = coreExports.getInput('issue_ops_repository', {
+        required: true
+    });
+    const issueNumber = parseInt(coreExports.getInput('issue_number', {
+        required: true
+    }), 10);
+    coreExports.info('IssueOps Inputs');
+    coreExports.info(`  Organization: ${organization}`);
+    coreExports.info(`  Repository: ${repository}`);
+    coreExports.info(`  Issue Number: ${issueNumber}`);
+    return {
+        organization,
+        repository,
+        issueNumber
+    };
+}
+
+/**
+ * The main function for the action.
+ *
+ * @returns Resolves when the action is complete.
+ */
+async function run() {
+    // If this action is running in the `issue-ops/self-service` repository, don't
+    // actually do anything. This repository hosts the self-service page and
+    // actions, but shouldn't actually run them!
+    if (DEMO_MODE)
+        coreExports.info('Running in `issue-ops/self-service`...switching to demo mode!');
+    // This Octokit instance only needs a token with access to the IssueOps
+    // repository.
+    const octokit = new Octokit({
+        auth: process.env.GH_TOKEN
+    });
+    // Get the inputs that are passed to all actions.
+    const issueOpsInputs = getIssueOpsInputs();
+    // Get the action. This determines what function to run.
+    const actionYaml = coreExports.getInput('action', { required: true });
+    const action = actionYaml.replace('.yml', '');
+    // Get the metadata for this IssueOps action.
+    const metadata = IssueOps.filter((a) => a.issueFormTemplate === actionYaml)[0];
+    // Fail the workflow if the metadata is not found.
+    if (metadata === undefined)
+        return coreExports.setFailed(`Unknown Action: ${action}`);
+    // Tag the approvers. This should only happen when the issue is opened,
+    // reopened, or edited.
+    if (githubExports.context.eventName === 'issues')
+        tagApprovers(issueOpsInputs, metadata);
+    // Get the list of missing approvers.
+    const status = await getStatus(issueOpsInputs, metadata);
+    if (status.state === 'approved') {
+        // Request is approved, proceed with the action.
+        coreExports.info('Request approved! Running action...');
+        // TODO: Make this dynamic? How would that affect bundling with rollup?
+        if (action === 'archive-repository')
+            await archiveRepository(issueOpsInputs);
+        else if (action === 'change-repository-visibility')
+            await changeRepositoryVisibility(issueOpsInputs);
+        else if (action === 'create-actions-variable')
+            await createActionsVariable(issueOpsInputs);
+        else if (action === 'create-announcement')
+            await createAnnouncement(issueOpsInputs);
+        else if (action === 'create-project')
+            await createProject(issueOpsInputs);
+        else if (action === 'create-repository-transfer')
+            await createRepositoryTransfer(issueOpsInputs);
+        else if (action === 'create-repository')
+            await createRepository(issueOpsInputs);
+        else if (action === 'rename-repository')
+            await renameRepository(issueOpsInputs);
+        else if (action === 'unarchive-repository')
+            await unarchiveRepository(issueOpsInputs);
+        else
+            coreExports.setFailed(`Unknown Action: ${action}`);
+    }
+    else if (status.state === 'denied') {
+        // The request was denied, notify the user and close the issue.
+        coreExports.info('Request denied! Closing issue...');
+        // Add a comment to the issue
+        await addComment(octokit, issueOpsInputs.organization, issueOpsInputs.repository, issueOpsInputs.issueNumber, 'Request has been denied! Closing.');
+        // Close the issue
+        await closeIssue(octokit, issueOpsInputs.organization, issueOpsInputs.repository, issueOpsInputs.issueNumber, 'not_planned');
+    }
+    else if (status.state === 'pending') {
+        // The request is pending. Nothing to do...
+        coreExports.info('Request pending! Waiting for approval from the following...');
+        coreExports.info(`${status.pending.map((a) => `- ${a}`).join('\n')}`);
+    }
+    coreExports.info('Action Complete!');
+}
+
+/**
+ * The entrypoint for the action. This file simply imports and runs the action's
+ * main logic.
+ */
+/* istanbul ignore next */
+run();

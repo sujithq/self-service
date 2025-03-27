@@ -11,6 +11,18 @@ export type Action =
   | 'rename-repository'
   | 'unarchive-repository'
 
+export type IssueOpsMetadata = {
+  approvers: string[]
+  assignees: string[]
+  category: 'enterprise' | 'organization' | 'repository'
+  description: string
+  icon: string
+  issueFormTemplate: string
+  issueTitle: string
+  label: string
+  name: string
+}
+
 export type IssueOpsInputs = {
   organization: string
   repository: string
@@ -18,6 +30,17 @@ export type IssueOpsInputs = {
 }
 
 export type RepositoryVisibility = 'internal' | 'public' | 'private'
+
+export type RequestState = 'approved' | 'denied' | 'pending'
+
+export type RequestStatus =
+  | {
+      state: 'approved' | 'denied'
+    }
+  | {
+      state: 'pending'
+      pending: string[]
+    }
 
 export type VariableVisibility = 'all' | 'private' | 'selected'
 

@@ -1,14 +1,19 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { Octokit } from '@octokit/rest'
-import { ArchiveRepositoryBody } from '../types.js'
-import { getIssueOpsInputs } from '../utils/inputs.js'
+import { ArchiveRepositoryBody, IssueOpsInputs } from '../types.js'
 import { addComment, closeIssue } from '../utils/issues.js'
 import { DEMO_MODE } from '../utils/mode.js'
 
-export async function archiveRepository(): Promise<void> {
-  const issueOps = getIssueOpsInputs()
-
+/**
+ * Archive a repository.
+ *
+ * @param issueOpsInputs IssueOps Inputs
+ * @returns Resolves when the action is complete.
+ */
+export async function archiveRepository(
+  issueOpsInputs: IssueOpsInputs
+): Promise<void> {
   // Get the action inputs
   const issue: ArchiveRepositoryBody = JSON.parse(
     core.getInput('parsed_issue_body', {
@@ -47,9 +52,9 @@ export async function archiveRepository(): Promise<void> {
   // Add a comment to the issue
   await addComment(
     octokit,
-    issueOps.organization,
-    issueOps.repository,
-    issueOps.issueNumber,
+    issueOpsInputs.organization,
+    issueOpsInputs.repository,
+    issueOpsInputs.issueNumber,
     repo.archived === false
       ? `Archived repository \`${issue.archive_repository_organization}/${issue.archive_repository_name}\``
       : `Repository is already archived \`${issue.archive_repository_organization}/${issue.archive_repository_name}\``
@@ -58,8 +63,8 @@ export async function archiveRepository(): Promise<void> {
   // Close the issue
   await closeIssue(
     octokit,
-    issueOps.organization,
-    issueOps.repository,
-    issueOps.issueNumber
+    issueOpsInputs.organization,
+    issueOpsInputs.repository,
+    issueOpsInputs.issueNumber
   )
 }

@@ -1,14 +1,19 @@
 import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { Octokit } from '@octokit/rest'
-import { CreateRepositoryTransferBody } from '../types.js'
-import { getIssueOpsInputs } from '../utils/inputs.js'
+import type { CreateRepositoryTransferBody, IssueOpsInputs } from '../types.js'
 import { addComment, closeIssue } from '../utils/issues.js'
 import { DEMO_MODE } from '../utils/mode.js'
 
-export async function createRepositoryTransfer(): Promise<void> {
-  const issueOps = getIssueOpsInputs()
-
+/**
+ * Create a repository transfer request.
+ *
+ * @param issueOpsInputs IssueOps Inputs
+ * @returns Resolves when the action is complete.
+ */
+export async function createRepositoryTransfer(
+  issueOpsInputs: IssueOpsInputs
+): Promise<void> {
   // Get the action inputs
   const issue: CreateRepositoryTransferBody = JSON.parse(
     core.getInput('parsed_issue_body', {
@@ -46,17 +51,17 @@ export async function createRepositoryTransfer(): Promise<void> {
   // Add a comment to the issue
   await addComment(
     octokit,
-    issueOps.organization,
-    issueOps.repository,
-    issueOps.issueNumber,
+    issueOpsInputs.organization,
+    issueOpsInputs.repository,
+    issueOpsInputs.issueNumber,
     `Transferred \`${issue.create_repository_transfer_name}\` from \`${issue.create_repository_transfer_current_organization} to \`${issue.create_repository_transfer_target_organization}\``
   )
 
   // Close the issue
   await closeIssue(
     octokit,
-    issueOps.organization,
-    issueOps.repository,
-    issueOps.issueNumber
+    issueOpsInputs.organization,
+    issueOpsInputs.repository,
+    issueOpsInputs.issueNumber
   )
 }
