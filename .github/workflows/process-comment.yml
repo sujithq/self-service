@@ -120,7 +120,7 @@ jobs:
           GH_TOKEN: ${{ steps.token.outputs.token }}
           GH_ENTERPRISE_TOKEN: ${{ secrets.GH_ENTERPRISE_TOKEN }}
         with:
-          add-comment: true
+          add-comment: false # Don't add an extra validation comment.
           github-token: ${{ steps.token.outputs.token }}
           issue-form-template: ${{ steps.get-template.outputs.template }}
           issue-number: ${{ github.event.issue.number }}
