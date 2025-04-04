@@ -238,3 +238,21 @@ Once you have completed all of the steps above, you can create a pull request to
 your forked repository (or back to this one if you're feeling generous!). The
 maintainers of the repository will review your pull request and provide
 feedback.
+
+## Updating the GitHub Pages Site
+
+The GitHub Pages site is a [Next.js](https://nextjs.org/) static site that is
+deployed to GitHub Pages via the
+[`continuous-delivery.yml`](./.github/workflows/continuous-delivery.yml)
+workflow. Any time a non-dependabot PR is merged to the `main` branch, this
+workflow will run and deploy the site to GitHub Pages.
+
+The site code is located in the `src/` directory. This directory contains all of
+the code that is required to generate the site. When making changes to the site,
+make sure to update the `src/` directory and not the `action/` directory.
+
+To run the site locally, simply run the following command:
+
+```bash
+npm run next:dev
+```
