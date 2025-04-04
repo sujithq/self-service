@@ -66,7 +66,7 @@ export async function createProject(
 
   // Create the project (when not in demo mode)
   let projectNumber = 3 // Fall back to 3 for demo mode
-  if (!DEMO_MODE) {
+  if (!DEMO_MODE()) {
     const response: {
       data: { createProjectV2: { projectV2: { number: number } } }
     } = await octokit.graphql(

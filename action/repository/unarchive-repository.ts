@@ -35,7 +35,7 @@ export async function unarchiveRepository(
   })
 
   // Get the repository information
-  const { data: repo } = await octokit.repos.get({
+  const { data: repo } = await octokit.rest.repos.get({
     owner: issue.unarchive_repository_organization,
     repo: issue.unarchive_repository_name
   })
@@ -43,8 +43,8 @@ export async function unarchiveRepository(
 
   // Unarchive the repository (when not in demo mode and the repository is
   // currently archived)
-  if (!DEMO_MODE && repo.archived === true)
-    await octokit.repos.update({
+  if (!DEMO_MODE() && repo.archived === true)
+    await octokit.rest.repos.update({
       owner: issue.unarchive_repository_organization,
       repo: issue.unarchive_repository_name,
       archived: false

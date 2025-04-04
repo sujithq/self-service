@@ -21,9 +21,8 @@ export async function isMember(
     })
 
     return true
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     if (error.status === 404) return false
-    throw error
+    else throw error
   }
 }

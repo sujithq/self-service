@@ -36,15 +36,15 @@ export async function renameRepository(
   })
 
   // Get the repository information
-  const { data: repo } = await octokit.repos.get({
+  const { data: repo } = await octokit.rest.repos.get({
     owner: issue.rename_repository_organization,
     repo: issue.rename_repository_current_name
   })
   core.info(`Repository Information: ${JSON.stringify(repo)}`)
 
   // Rename the repository (when not in demo mode and the name is different)
-  if (!DEMO_MODE && repo.name !== issue.rename_repository_new_name)
-    await octokit.repos.update({
+  if (!DEMO_MODE() && repo.name !== issue.rename_repository_new_name)
+    await octokit.rest.repos.update({
       owner: issue.rename_repository_organization,
       repo: issue.rename_repository_current_name,
       name: issue.rename_repository_new_name

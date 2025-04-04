@@ -53,7 +53,7 @@ export async function createActionsVariable(
   )
 
   // Create the variable (when not in demo mode)
-  if (!DEMO_MODE)
+  if (!DEMO_MODE())
     if (issue.create_actions_variable_visibility === 'selected')
       await octokit.rest.actions.createOrgVariable({
         org: issue.create_actions_variable_organization,

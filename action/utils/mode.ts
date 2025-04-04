@@ -6,5 +6,5 @@ import * as github from '@actions/github'
  * This is used to prevent any actual changes from being made when the action is
  * running in the `issue-ops` organization.
  */
-export const DEMO_MODE =
+export const DEMO_MODE = () =>
   github.context.repo.owner === 'issue-ops' ? true : false

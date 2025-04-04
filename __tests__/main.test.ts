@@ -67,9 +67,6 @@ jest.unstable_mockModule('../action/utils/issues.js', () => issuesMocks)
 
 const main = await import('../action/main.js')
 
-// const { Octokit } = await import('@octokit/rest')
-// const mocktokit = jest.mocked(new Octokit())
-
 describe('Main', () => {
   beforeEach(() => {
     // Reset the GitHub context

@@ -37,7 +37,7 @@ export async function createAnnouncement(
   })
 
   // Create the announcement (when not in demo mode)
-  if (!DEMO_MODE)
+  if (!DEMO_MODE())
     // https://docs.github.com/en/enterprise-cloud@latest/rest/announcement-banners/organizations#set-announcement-banner-for-organization
     await octokit.request('PATCH /orgs/{org}/announcement', {
       org: issue.create_announcement_organization,

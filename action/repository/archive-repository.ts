@@ -35,15 +35,15 @@ export async function archiveRepository(
   })
 
   // Get the repository information
-  const { data: repo } = await octokit.repos.get({
+  const { data: repo } = await octokit.rest.repos.get({
     owner: issue.archive_repository_organization,
     repo: issue.archive_repository_name
   })
   core.info(`Repository Information: ${JSON.stringify(repo)}`)
 
   // Rename the repository (when not in demo mode)
-  if (!DEMO_MODE && repo.archived === false)
-    await octokit.repos.update({
+  if (!DEMO_MODE() && repo.archived === false)
+    await octokit.rest.repos.update({
       owner: issue.archive_repository_organization,
       repo: issue.archive_repository_name,
       archived: true

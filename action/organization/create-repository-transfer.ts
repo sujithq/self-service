@@ -41,7 +41,7 @@ export async function createRepositoryTransfer(
   })
 
   // Create the transfer request (when not in demo mode)
-  if (!DEMO_MODE)
+  if (!DEMO_MODE())
     await octokit.rest.repos.transfer({
       owner: issue.create_repository_transfer_current_organization,
       repo: issue.create_repository_transfer_name,

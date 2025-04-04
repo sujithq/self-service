@@ -2,43 +2,25 @@ import { jest } from '@jest/globals'
 
 export const graphql = jest.fn()
 export const paginate = jest.fn()
+export const request = jest.fn()
 export const rest = {
   actions: {
-    createOrUpdateEnvironmentSecret: jest.fn(),
-    createOrUpdateRepoSecret: jest.fn(),
-    createEnvironmentVariable: jest.fn(),
-    createRepoVariable: jest.fn(),
-    getEnvironmentPublicKey: jest.fn(),
-    getRepoPublicKey: jest.fn(),
-    updateRepoVariable: jest.fn()
-  },
-  codespaces: {
-    createOrUpdateRepoSecret: jest.fn(),
-    getRepoPublicKey: jest.fn()
+    createOrgVariable: jest.fn()
   },
   issues: {
-    addLabels: jest.fn(),
     createComment: jest.fn(),
-    get: jest.fn(),
-    listComments: jest.fn(),
-    removeLabel: jest.fn(),
-    update: jest.fn(),
-    updateComment: jest.fn()
+    update: jest.fn()
   },
   orgs: {
-    checkMembershipForUser: jest.fn()
-  },
-  pulls: {
-    create: jest.fn(),
-    listFiles: jest.fn()
+    get: jest.fn()
   },
   repos: {
+    createInOrg: jest.fn(),
     get: jest.fn(),
-    getContent: jest.fn()
+    transfer: jest.fn(),
+    update: jest.fn()
   },
   teams: {
-    addOrUpdateMembershipForUserInOrg: jest.fn(),
-    addOrUpdateRepoPermissionsInOrg: jest.fn(),
     getByName: jest.fn(),
     getMembershipForUserInOrg: jest.fn()
   }

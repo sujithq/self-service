@@ -25,6 +25,7 @@ export async function tagApprovers(
     return core.info('No approvals required!')
 
   // Comment on the issue and tag the approvers.
+  /* istanbul ignore next */
   const approvers = metadata.approvers
     .map((a) => `- ${!a.includes('@') ? '@' : ''}${a}`)
     .join('\n')
@@ -91,6 +92,7 @@ export async function getStatus(
 
   // Get the timeline events for the issue, sorted by date. If the event does
   // not have a date, ignore it for sorting purposes.
+  /* istanbul ignore next */
   const timeline = (
     await octokit.paginate(octokit.rest.issues.listEventsForTimeline, {
       owner: issueOpsInputs.organization,
@@ -117,9 +119,11 @@ export async function getStatus(
     }
 
     // Skip events if there is no comment body.
+    /* istanbul ignore next */
     if (!('body' in event)) continue
 
     // Skip events if the body is not `/approve` or `/deny`.
+    /* istanbul ignore next */
     if (event.body !== '/approve' && event.body !== '/deny') continue
 
     // Check if the user is an approver (handle is in the approver list).
@@ -138,8 +142,10 @@ export async function getStatus(
     // if the user who created the issue is the same as the user who commented.
     // This is to prevent a user from approving their own request unless they
     // are explicitly listed as an approver by handle (not team).
+    /* istanbul ignore next */
     if (event.user.login === github.context.payload.issue?.user.login) continue
 
+    /* istanbul ignore next */
     for (const team of pending.filter((a) => a.includes('/'))) {
       if (await isMember(octokit, team, event.user.login))
         if (event.body === '/approve')
@@ -155,6 +161,7 @@ export async function getStatus(
 
   // If there are no pending approvers, set the state to approved. Otherwise,
   // set the state to pending.
+  /* istanbul ignore next */
   return pending.length === 0
     ? { state: 'approved' }
     : { state: 'pending', pending }

@@ -43,14 +43,18 @@ export async function changeRepositoryVisibility(
   })
 
   // Get the repository information
-  const { data: repo } = await octokit.repos.get({
+  const { data: repo } = await octokit.rest.repos.get({
     owner: issue.change_repository_visibility_organization,
     repo: issue.change_repository_visibility_name
   })
   core.info(`Repository Information: ${JSON.stringify(repo)}`)
 
   // Change the visibility (when not in demo mode)
-  if (!DEMO_MODE)
+  if (
+    !DEMO_MODE() &&
+    repo.visibility !==
+      issue.change_repository_visibility_visibility.toLowerCase()
+  )
     await octokit.rest.repos.update({
       owner: issue.change_repository_visibility_organization,
       repo: issue.change_repository_visibility_name,
@@ -66,7 +70,8 @@ export async function changeRepositoryVisibility(
     issueOpsInputs.organization,
     issueOpsInputs.repository,
     issueOpsInputs.issueNumber,
-    repo.archived === false
+    repo.visibility !==
+      issue.change_repository_visibility_visibility.toLowerCase()
       ? `Set repository \`${issue.change_repository_visibility_organization}/${issue.change_repository_visibility_name}\` to \`${issue.change_repository_visibility_visibility}\` visibility`
       : `Repository \`${issue.change_repository_visibility_organization}/${issue.change_repository_visibility_name}\` is already \`${issue.change_repository_visibility_visibility}\` visibility`
   )

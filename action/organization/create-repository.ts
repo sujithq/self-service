@@ -38,7 +38,7 @@ export async function createRepository(
   })
 
   // Create the repository (when not in demo mode)
-  if (!DEMO_MODE)
+  if (!DEMO_MODE())
     await octokit.rest.repos.createInOrg({
       org: issue.create_repository_organization,
       name: issue.create_repository_name,
