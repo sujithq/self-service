@@ -140,7 +140,7 @@ when an issue is created or updated.
 As a general recommendation, name the validator script something like
 `<condition>-<expected result>.js`. For example, if you are validating that the
 `username` input only contains alphanumeric characters, you could name the
-[`.github/validators`](./.github/validators) directory.
+`.github/validators` directory.
 
 #### Update the Validator Configuration
 
