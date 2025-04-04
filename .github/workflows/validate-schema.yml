@@ -1,6 +1,13 @@
 name: Validate Schema
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - action/**/*
+      - data/**/*
+      - dist/**/*
   pull_request:
     branches:
       - main
