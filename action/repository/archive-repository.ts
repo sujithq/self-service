@@ -41,7 +41,7 @@ export async function archiveRepository(
   })
   core.info(`Repository Information: ${JSON.stringify(repo)}`)
 
-  // Rename the repository (when not in demo mode)
+  // Archive the repository (when not in demo mode)
   if (!DEMO_MODE() && repo.archived === false)
     await octokit.rest.repos.update({
       owner: issue.archive_repository_organization,
