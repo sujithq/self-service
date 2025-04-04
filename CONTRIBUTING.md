@@ -129,8 +129,8 @@ When creating a new entry in this file, make sure to set all of the fields!
 ### Create or Configure Validators
 
 If any extra validation is required for issue form responses, you can create
-additional validator scripts in the [`.github/validators`](./.github/validators)
-directory. This repository uses the
+additional validator scripts in the `.github/validators` directory. This
+repository uses the
 [`issue-ops/validator`](https://github.com/issue-ops/validator) GitHub Action to
 validate issue forms. This action will automatically validate all issue forms
 when an issue is created or updated.
