@@ -2,8 +2,8 @@
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "noEmit": true,
-    "allowJs": true
+    "allowJs": true,
+    "noEmit": true
   },
   "exclude": [".next", "dist", "node_modules"],
   "include": [
@@ -12,6 +12,7 @@
     "__tests__",
     ".github",
     "action",
+    "schema/validate.js",
     "src",
     "eslint.config.mjs",
     "jest.config.ts",

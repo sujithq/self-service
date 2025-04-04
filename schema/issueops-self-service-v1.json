@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "issueops-self-service-schema-v1",
+  "title": "GitHub IssueOps Self Service Action Schema",
+  "description": "Schema for the GitHub IssueOps Self Service Actions",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "approvers": {
+        "type": "array",
+        "description": "List of Approving Users or GitHub Teams",
+        "items": {
+          "type": "string"
+        }
+      },
+      "assignees": {
+        "type": "array",
+        "description": "List of Assigning Users",
+        "items": {
+          "type": "string",
+          "pattern": "^[^/]*$"
+        }
+      },
+      "category": {
+        "type": "string",
+        "description": "Category of the IssueOps Action",
+        "enum": ["enterprise", "organization", "repository"]
+      },
+      "description": {
+        "type": "string",
+        "description": "Description of the IssueOps Action"
+      },
+      "icon": {
+        "type": "string",
+        "description": "Icon of the IssueOps Action"
+      },
+      "issueFormTemplate": {
+        "type": "string",
+        "description": "Issue Form Template of the IssueOps Action",
+        "pattern": "^[^/]*$"
+      },
+      "issueTitle": {
+        "type": "string",
+        "description": "Issue Title of the IssueOps Action"
+      },
+      "label": {
+        "type": "string",
+        "description": "Label of the IssueOps Action"
+      },
+      "name": {
+        "type": "string",
+        "description": "Name of the IssueOps Action"
+      }
+    },
+    "required": [
+      "approvers",
+      "assignees",
+      "category",
+      "description",
+      "icon",
+      "issueFormTemplate",
+      "issueTitle",
+      "label",
+      "name"
+    ]
+  }
+}

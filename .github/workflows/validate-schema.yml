@@ -1,0 +1,38 @@
+name: Validate Schema
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - action/**/*
+      - data/**/*
+      - dist/**/*
+
+permissions:
+  contents: read
+
+jobs:
+  validate-schema:
+    name: Validate Schema
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        id: setup-node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .node-version
+          cache: npm
+
+      - name: Install Dependencies
+        id: install
+        run: npm ci
+
+      - name: Build dist/ Directory
+        id: build
+        run: npm run validate:schema
