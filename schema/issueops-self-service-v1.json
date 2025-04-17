@@ -40,10 +40,6 @@
         "description": "Issue Form Template of the IssueOps Action",
         "pattern": "^[^/]*$"
       },
-      "issueTitle": {
-        "type": "string",
-        "description": "Issue Title of the IssueOps Action"
-      },
       "label": {
         "type": "string",
         "description": "Label of the IssueOps Action"
@@ -60,7 +56,6 @@
       "description",
       "icon",
       "issueFormTemplate",
-      "issueTitle",
       "label",
       "name"
     ]

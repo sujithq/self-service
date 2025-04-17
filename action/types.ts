@@ -18,7 +18,6 @@ export type IssueOpsMetadata = {
   description: string
   icon: string
   issueFormTemplate: string
-  issueTitle: string
   label: string
   name: string
 }

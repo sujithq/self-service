@@ -15,7 +15,6 @@ export const AvailableIssueOps: {
   description: string
   icon: LucideIcon // For icons, see: https://lucide.dev/icons
   issueFormTemplate: string
-  issueTitle: string
   label: string
   name: string
 }[] = IssueOps.map((issueOp) => ({
@@ -25,7 +24,6 @@ export const AvailableIssueOps: {
   description: issueOp.description as string,
   icon: Icons[issueOp.icon as keyof typeof Icons] as LucideIcon,
   issueFormTemplate: issueOp.issueFormTemplate as string,
-  issueTitle: issueOp.issueTitle as string,
   label: issueOp.label as string,
   name: issueOp.name as string
 }))

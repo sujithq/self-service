@@ -6,7 +6,6 @@
     "description": "Invite a user to an organization.",
     "icon": "Building",
     "issueFormTemplate": "create-organization-invitation.yml",
-    "issueTitle": "[IssueOps] Create an organization invitation",
     "label": "create-organization-invitation",
     "name": "Organization Invitation"
   },
@@ -17,7 +16,6 @@
     "description": "Create an organization announcement banner.",
     "icon": "Volume2",
     "issueFormTemplate": "create-announcement.yml",
-    "issueTitle": "[IssueOps] Create a new announcement",
     "label": "create-announcement",
     "name": "Announcement"
   },
@@ -28,7 +26,6 @@
     "description": "Create a project for your organization users and repositories.",
     "icon": "SquareKanban",
     "issueFormTemplate": "create-project.yml",
-    "issueTitle": "[IssueOps] Create a new project",
     "label": "create-project",
     "name": "Project"
   },
@@ -39,7 +36,6 @@
     "description": "Create an organization variable to use in your GitHub Actions workflows.",
     "icon": "Variable",
     "issueFormTemplate": "create-actions-variable.yml",
-    "issueTitle": "[IssueOps] Create a new GitHub Actions variable",
     "label": "create-actions-variable",
     "name": "GitHub Actions Variable"
   },
@@ -50,7 +46,6 @@
     "description": "Transfer a repository. Requires enterprise admin approval.",
     "icon": "FolderSync",
     "issueFormTemplate": "create-repository-transfer.yml",
-    "issueTitle": "[IssueOps] Create a new repository transfer",
     "label": "create-repository-transfer",
     "name": "Repository Transfer"
   },
@@ -61,7 +56,6 @@
     "description": "Create a new repository in your organization.",
     "icon": "BookDashed",
     "issueFormTemplate": "create-repository.yml",
-    "issueTitle": "[IssueOps] Create a new repository",
     "label": "create-repository",
     "name": "Create Repository"
   },
@@ -72,7 +66,6 @@
     "description": "Rename a repository in your organization.",
     "icon": "BookMarked",
     "issueFormTemplate": "rename-repository.yml",
-    "issueTitle": "[IssueOps] Rename a repository",
     "label": "rename-repository",
     "name": "Rename Repository"
   },
@@ -83,7 +76,6 @@
     "description": "Archive a repository in your organization, converting it to read-only.",
     "icon": "BookLock",
     "issueFormTemplate": "archive-repository.yml",
-    "issueTitle": "[IssueOps] Archive a repository",
     "label": "archive-repository",
     "name": "Archive Repository"
   },
@@ -94,7 +86,6 @@
     "description": "Change the visibility of your repository.",
     "icon": "BookUp2",
     "issueFormTemplate": "change-repository-visibility.yml",
-    "issueTitle": "[IssueOps] Change the visibility of a repository",
     "label": "change-repository-visibility",
     "name": "Change Visibility"
   },
@@ -105,7 +96,6 @@
     "description": "Unarchive a repository.",
     "icon": "BookUp2",
     "issueFormTemplate": "unarchive-repository.yml",
-    "issueTitle": "[IssueOps] Unarchive a repository",
     "label": "unarchive-repository",
     "name": "Unarchive Repository"
   }

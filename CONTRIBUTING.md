@@ -113,9 +113,6 @@ following schema.
   // The name of the issue form template to use.
   "issueFormTemplate": "create-announcement.yml",
 
-  // The title of the issue.
-  "issueTitle": "[IssueOps] Create a new announcement",
-
   // The unique label added to issues created with this template.
   "label": "create-announcement",
 
