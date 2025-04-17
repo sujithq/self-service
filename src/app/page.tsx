@@ -120,12 +120,12 @@ export default function Home() {
           </form>
         </Form>
       </div>
-      <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 auto-rows-min">
         {filteredIssueOps.map((issueOp) => (
           <div
-            className="aspect-video rounded-xl bg-muted/50"
+            className="rounded-xl bg-muted/50 min-w-[200px] max-w-full w-full mx-auto"
             key={issueOp.name}>
-            <Card className="h-full flex flex-col">
+            <Card className="h-full flex flex-col min-h-[200px]">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <issueOp.icon className="h-6 w-6 text-blue-500" />
