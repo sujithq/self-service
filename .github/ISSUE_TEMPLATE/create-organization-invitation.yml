@@ -1,0 +1,36 @@
+name: '[IssueOps] Create Organization Invitation'
+description: Invites a user to an organization.
+title: '[IssueOps] Create Organization Invitation'
+labels:
+  - issue-ops
+  - create-organization-invitation
+body:
+  - id: create_organization_invitation_organization
+    type: input
+    attributes:
+      label: GitHub Organization
+      description: GitHub organization where the user will be invited
+      placeholder: github
+    validations:
+      required: true
+  - id: create_organization_invitation_handle
+    type: input
+    attributes:
+      label: GitHub Handle
+      description: GitHub handle of the user to invite
+      placeholder: mona
+    validations:
+      required: true
+  - id: create_organization_invitation_role
+    type: dropdown
+    attributes:
+      label: Role
+      description: Role of the user in the organization
+      multiple: false
+      options:
+        - Direct Member
+        - Billing Manager
+        - Admin
+      default: 0
+    validations:
+      required: true

@@ -23,6 +23,14 @@ validators:
   - field: create_announcement_expiration_date
     script: date-valid-true.js
 
+  # create-organization-invitation
+  - field: create_organization_invitation_organization
+    script: organization-exists-true.js
+  - field: create_organization_invitation_handle
+    script: user-exists-true.js
+  - field: create_organization_invitation_role
+    script: organization-role-valid-true.js
+
   # create-project
   - field: create_project_title
     script: project-exists-false.js

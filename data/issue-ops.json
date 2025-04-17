@@ -1,5 +1,16 @@
 [
   {
+    "approvers": ["@issue-ops/maintainers"],
+    "assignees": [],
+    "category": "enterprise",
+    "description": "Invite a user to an organization.",
+    "icon": "Building",
+    "issueFormTemplate": "create-organization-invitation.yml",
+    "issueTitle": "[IssueOps] Create an organization invitation",
+    "label": "create-organization-invitation",
+    "name": "Organization Invitation"
+  },
+  {
     "approvers": [],
     "assignees": [],
     "category": "organization",

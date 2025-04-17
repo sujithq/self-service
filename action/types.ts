@@ -70,6 +70,12 @@ export type CreateAnnouncementBody = {
   create_announcement_user_dismissible: Checkboxes
 }
 
+export type CreateOrganizationInvitationBody = {
+  create_organization_invitation_organization: string
+  create_organization_invitation_handle: string
+  create_organization_invitation_role: string[]
+}
+
 export type CreateProjectBody = {
   create_project_organization: string
   create_project_team: string
