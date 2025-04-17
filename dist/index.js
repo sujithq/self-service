@@ -34816,6 +34816,57 @@ async function closeIssue(octokit, organization, repository, issueNumber, reason
 const DEMO_MODE = () => githubExports.context.repo.owner === 'issue-ops' ? true : false;
 
 /**
+ * Create an organization invitation.
+ *
+ * @param issueOpsInputs IssueOps Inputs
+ * @returns Resolves when the action is complete.
+ */
+async function createOrganizationInvitation(issueOpsInputs) {
+    // Get the action inputs
+    const issue = JSON.parse(coreExports.getInput('parsed_issue_body', {
+        required: true
+    }));
+    coreExports.info('Action Inputs');
+    coreExports.info(`  Organization: ${issue.create_organization_invitation_organization}`);
+    coreExports.info(`  Handle: ${issue.create_organization_invitation_handle}`);
+    coreExports.info(`  Role: ${issue.create_organization_invitation_role}`);
+    // If the organization name is not the same as the organization where this
+    // action is running, we need to use the enterprise token.
+    const octokit = new Octokit({
+        auth: issue.create_organization_invitation_organization ===
+            githubExports.context.repo.owner
+            ? process.env.GH_TOKEN
+            : process.env.GH_ENTERPRISE_TOKEN
+    });
+    // Check if there is a pending invitation for this user
+    const pendingInvitation = (await octokit.paginate(octokit.rest.orgs.listPendingInvitations, {
+        org: issue.create_organization_invitation_organization,
+        role: issue.create_organization_invitation_role[0]
+            .toLowerCase()
+            .replaceAll(' ', '_')
+    })).find((invitation) => invitation.login === issue.create_organization_invitation_handle);
+    // Get the user's ID
+    const user = await octokit.rest.users.getByUsername({
+        username: issue.create_organization_invitation_handle
+    });
+    // Create the invitation (when not in demo mode)
+    if (!DEMO_MODE() && !pendingInvitation)
+        await octokit.rest.orgs.createInvitation({
+            org: issue.create_organization_invitation_organization,
+            invitee_id: user.data.id,
+            role: issue.create_organization_invitation_role[0]
+                .toLowerCase()
+                .replaceAll(' ', '_')
+        });
+    // Add a comment to the issue
+    await addComment(octokit, issueOpsInputs.organization, issueOpsInputs.repository, issueOpsInputs.issueNumber, pendingInvitation
+        ? `User \`${issue.create_organization_invitation_handle}\` already has a pending invitation.`
+        : `Invited \`${issue.create_organization_invitation_handle}\` to the organization \`${issue.create_organization_invitation_organization}\` as \`${issue.create_organization_invitation_role[0]}\`.`);
+    // Close the issue
+    await closeIssue(octokit, issueOpsInputs.organization, issueOpsInputs.repository, issueOpsInputs.issueNumber);
+}
+
+/**
  * Create an organization actions variable.
  *
  * @param issueOpsInputs IssueOps Inputs
@@ -35503,6 +35554,8 @@ async function run() {
             await createActionsVariable(issueOpsInputs);
         else if (action === 'create-announcement')
             await createAnnouncement(issueOpsInputs);
+        else if (action === 'create-organization-invitation')
+            await createOrganizationInvitation(issueOpsInputs);
         else if (action === 'create-project')
             await createProject(issueOpsInputs);
         else if (action === 'create-repository-transfer')

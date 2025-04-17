@@ -5,6 +5,7 @@ export type Action =
   | 'change-repository-visibility'
   | 'create-announcement'
   | 'create-actions-variable'
+  | 'create-organization-invitation'
   | 'create-project'
   | 'create-repository'
   | 'create-repository-transfer'

@@ -5,6 +5,7 @@ import fs from 'fs'
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import path from 'path'
+import { createOrganizationInvitation } from './enterprise/index.js'
 import {
   createActionsVariable,
   createAnnouncement,
@@ -84,6 +85,8 @@ export async function run(): Promise<void> {
       await createActionsVariable(issueOpsInputs)
     else if (action === 'create-announcement')
       await createAnnouncement(issueOpsInputs)
+    else if (action === 'create-organization-invitation')
+      await createOrganizationInvitation(issueOpsInputs)
     else if (action === 'create-project') await createProject(issueOpsInputs)
     else if (action === 'create-repository-transfer')
       await createRepositoryTransfer(issueOpsInputs)

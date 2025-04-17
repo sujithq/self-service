@@ -19,7 +19,11 @@ jest.unstable_mockModule('@octokit/rest', () => {
 })
 
 // Mock the internal modules
-const enterpriseMocks = {}
+type enterprise = typeof import('../action/enterprise/index.js')
+const enterpriseMocks = {
+  createOrganizationInvitation:
+    jest.fn<enterprise['createOrganizationInvitation']>()
+}
 jest.unstable_mockModule('../action/enterprise/index.js', () => enterpriseMocks)
 
 type organization = typeof import('../action/organization/index.js')
@@ -192,6 +196,20 @@ describe('Main', () => {
 
     expect(approvalMocks.tagApprovers).not.toHaveBeenCalled()
     expect(organizationMocks.createProject).toHaveBeenCalled()
+  })
+
+  it('Processes create-organization-invitation', async () => {
+    github.context.eventName = 'issue_comment'
+    core.getInput.mockReturnValue('create-organization-invitation.yml')
+
+    approvalMocks.getStatus.mockResolvedValue({
+      state: 'approved'
+    })
+
+    await main.run()
+
+    expect(approvalMocks.tagApprovers).not.toHaveBeenCalled()
+    expect(enterpriseMocks.createOrganizationInvitation).toHaveBeenCalled()
   })
 
   it('Processes create-repository-transfer', async () => {

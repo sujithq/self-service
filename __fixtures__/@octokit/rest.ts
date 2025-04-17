@@ -12,6 +12,7 @@ export const rest = {
     update: jest.fn()
   },
   orgs: {
+    createInvitation: jest.fn(),
     get: jest.fn()
   },
   repos: {
@@ -23,5 +24,8 @@ export const rest = {
   teams: {
     getByName: jest.fn(),
     getMembershipForUserInOrg: jest.fn()
+  },
+  users: {
+    getByUsername: jest.fn()
   }
 }
