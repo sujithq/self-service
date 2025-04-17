@@ -1,17 +1,13 @@
 import { AppSidebar } from '@/components/app-sidebar'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import localFont from 'next/font/local'
 import './globals.css'
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin']
-})
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin']
+const monaspaceArgon = localFont({
+  src: '../public/fonts/MonaspaceArgonVarVF[wght,wdth,slnt].ttf',
+  weight: '400',
+  style: 'normal'
 })
 
 export const metadata: Metadata = {
@@ -26,8 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${monaspaceArgon.className} antialiased`}>
         <SidebarProvider>
           <AppSidebar />
           <SidebarInset>{children}</SidebarInset>
