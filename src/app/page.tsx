@@ -70,7 +70,8 @@ export default function Home() {
                           onPressedChange={(checked) => {
                             field.onChange(checked)
                             setShowEnterprise(checked)
-                          }}>
+                          }}
+                          className="hover:bg-blue-500 data-[state=on]:hover:bg-blue-500">
                           Enterprise
                         </Toggle>
                       </FormControl>
@@ -89,7 +90,8 @@ export default function Home() {
                           onPressedChange={(checked) => {
                             field.onChange(checked)
                             setShowOrganization(checked)
-                          }}>
+                          }}
+                          className="hover:bg-blue-500 data-[state=on]:hover:bg-blue-500">
                           Organization
                         </Toggle>
                       </FormControl>
@@ -108,7 +110,8 @@ export default function Home() {
                           onPressedChange={(checked) => {
                             field.onChange(checked)
                             setShowRepository(checked)
-                          }}>
+                          }}
+                          className="hover:bg-blue-500 data-[state=on]:hover:bg-blue-500">
                           Repository
                         </Toggle>
                       </FormControl>
