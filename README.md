@@ -151,3 +151,8 @@ The full list of supported IssueOps can be found in the following table.
 
 See the [CONTRIBUTING.md](./CONTRIBUTING.md) file for instructions on how to add
 new IssueOps to this portal.
+
+## License
+
+This project is licensed under the terms of the MIT open source license. Please
+refer to [LICENSE](./LICENSE) for the full terms.
