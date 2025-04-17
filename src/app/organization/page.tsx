@@ -18,7 +18,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-1 flex-col gap-4 p-4">
-      <div className="min-h-[100px] rounded-xl bg-muted/50 items-center justify-items-center pt-5 pb-5">
+      <div className="min-h-[100px] rounded-xl bg-muted/50 items-center justify-items-center text-center pt-5 pb-5">
         <h1 className="text-5xl font-bold">IssueOps Self-Service Portal</h1>
       </div>
       <hr />
