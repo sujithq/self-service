@@ -52,7 +52,7 @@
     "@github/issue-parser": "^2.0.0",
     "@hookform/resolvers": "^5.0.1",
     "@mui/material": "^7.1.1",
-    "@octokit/rest": "^21.1.1",
+    "@octokit/rest": "^22.0.0",
     "@primer/octicons-react": "^19.15.2",
     "@primer/react": "^37.25.0",
     "@radix-ui/react-avatar": "^1.1.10",
