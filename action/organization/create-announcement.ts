@@ -33,7 +33,8 @@ export async function createAnnouncement(
     auth:
       issue.create_announcement_organization === github.context.repo.owner
         ? process.env.GH_TOKEN
-        : process.env.GH_ENTERPRISE_TOKEN
+        : process.env.GH_ENTERPRISE_TOKEN,
+    baseUrl: core.getInput('api_url', { required: true })
   })
 
   // Create the announcement (when not in demo mode)

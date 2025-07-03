@@ -34,7 +34,8 @@ export async function createRepository(
     auth:
       issue.create_repository_organization === github.context.repo.owner
         ? process.env.GH_TOKEN
-        : process.env.GH_ENTERPRISE_TOKEN
+        : process.env.GH_ENTERPRISE_TOKEN,
+    baseUrl: core.getInput('api_url', { required: true })
   })
 
   // Create the repository (when not in demo mode)

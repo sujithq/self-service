@@ -49,7 +49,8 @@ export async function tagApprovers(
 
   await addComment(
     new Octokit({
-      auth: process.env.GH_TOKEN
+      auth: process.env.GH_TOKEN,
+      baseUrl: core.getInput('api_url') || process.env.GITHUB_API_URL
     }),
     issueOpsInputs.organization,
     issueOpsInputs.repository,
@@ -78,7 +79,8 @@ export async function getStatus(
   metadata: IssueOpsMetadata
 ): Promise<RequestStatus> {
   const octokit = new Octokit({
-    auth: process.env.GH_TOKEN
+    auth: process.env.GH_TOKEN,
+    baseUrl: core.getInput('api_url', { required: true })
   })
 
   // If no approvals are required, return an empty array.

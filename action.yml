@@ -29,6 +29,10 @@ inputs:
   action:
     description: Self-service action to run (e.g. `rename-repository`)
     required: true
+  api_url:
+    description: The GitHub API URL to use.
+    required: false
+    default: ${{ github.api_url }}
   parsed_issue_body:
     description: Parsed issue body
     required: true

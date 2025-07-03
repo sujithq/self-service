@@ -8,6 +8,7 @@
  */
 export default async (field) => {
   const github = await import('@actions/github')
+  const core = await import('@actions/core')
   const { parseIssue } = await import('@github/issue-parser')
   const { Octokit } = await import('@octokit/rest')
 
@@ -23,7 +24,8 @@ export default async (field) => {
     auth:
       issue.github_organization === github.context.repo.owner
         ? process.env.GH_TOKEN
-        : process.env.GH_ENTERPRISE_TOKEN
+        : process.env.GH_ENTERPRISE_TOKEN,
+    baseUrl: core.getInput('api_url', { required: true })
   })
 
   try {

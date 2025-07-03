@@ -42,7 +42,8 @@ export async function run(): Promise<void> {
   // This Octokit instance only needs a token with access to the IssueOps
   // repository.
   const octokit = new Octokit({
-    auth: process.env.GH_TOKEN
+    auth: process.env.GH_TOKEN,
+    baseUrl: core.getInput('api_url', { required: true })
   })
 
   // Get the inputs that are passed to all actions.
