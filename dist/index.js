@@ -35431,7 +35431,7 @@ async function tagApprovers(issueOpsInputs, metadata) {
     > This request has been ${githubExports.context.payload.action}! Previous approvals are no longer valid. Please re-approve this request.`;
     await addComment(new Octokit({
         auth: process.env.GH_TOKEN,
-        baseUrl: coreExports.getInput('api_url') || process.env.GITHUB_API_URL
+        baseUrl: coreExports.getInput('api_url', { required: true })
     }), issueOpsInputs.organization, issueOpsInputs.repository, issueOpsInputs.issueNumber, comment);
 }
 /**
