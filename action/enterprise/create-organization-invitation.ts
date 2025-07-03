@@ -38,7 +38,8 @@ export async function createOrganizationInvitation(
       issue.create_organization_invitation_organization ===
       github.context.repo.owner
         ? process.env.GH_TOKEN
-        : process.env.GH_ENTERPRISE_TOKEN
+        : process.env.GH_ENTERPRISE_TOKEN,
+    baseUrl: core.getInput('api_url', { required: true })
   })
 
   // Check if there is a pending invitation for this user

@@ -31,7 +31,8 @@ export async function archiveRepository(
     auth:
       issue.archive_repository_organization === github.context.repo.owner
         ? process.env.GH_TOKEN
-        : process.env.GH_ENTERPRISE_TOKEN
+        : process.env.GH_ENTERPRISE_TOKEN,
+    baseUrl: core.getInput('api_url', { required: true })
   })
 
   // Get the repository information

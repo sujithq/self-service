@@ -38,7 +38,8 @@ export async function createActionsVariable(
     auth:
       issue.create_actions_variable_organization === github.context.repo.owner
         ? process.env.GH_TOKEN
-        : process.env.GH_ENTERPRISE_TOKEN
+        : process.env.GH_ENTERPRISE_TOKEN,
+    baseUrl: core.getInput('api_url', { required: true })
   })
 
   // If the visibility is 'selected', we need to get the repository IDs.

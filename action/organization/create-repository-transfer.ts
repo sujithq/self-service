@@ -37,7 +37,8 @@ export async function createRepositoryTransfer(
       issue.create_repository_transfer_current_organization ===
       github.context.repo.owner
         ? process.env.GH_TOKEN
-        : process.env.GH_ENTERPRISE_TOKEN
+        : process.env.GH_ENTERPRISE_TOKEN,
+    baseUrl: core.getInput('api_url', { required: true })
   })
 
   // Create the transfer request (when not in demo mode)

@@ -1,7 +1,7 @@
 {
   "name": "issue-ops-self-service",
   "description": "Self-service IssueOps portal demo",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "author": "Nick Alteen <ncalteen@github.com>",
   "type": "module",
   "homepage": "https://github.com/issue-ops/self-service#readme",
