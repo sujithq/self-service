@@ -13,6 +13,7 @@ import { Toggle } from '@/components/ui/toggle'
 import { AvailableIssueOps } from '@/lib/data'
 import { Category } from '@/lib/enums'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { getIssueCreationUrl } from '@/lib/utils'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -137,7 +138,17 @@ export default function Home() {
                 <CardDescription>{issueOp.description}</CardDescription>
               </CardHeader>
               <CardContent className="mt-auto flex justify-end items-end">
-                <Button className="bg-blue-500 text-white py-2 px-4 rounded">
+                <Button
+                  className="bg-blue-500 text-white py-2 px-4 rounded"
+                  onClick={() =>
+                    window.open(
+                      getIssueCreationUrl({
+                        issueFormTemplate: issueOp.issueFormTemplate,
+                        label: issueOp.label
+                      }),
+                      '_blank'
+                    )
+                  }>
                   Go
                 </Button>
               </CardContent>
