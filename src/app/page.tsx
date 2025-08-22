@@ -12,8 +12,8 @@ import { Form, FormControl, FormField } from '@/components/ui/form'
 import { Toggle } from '@/components/ui/toggle'
 import { AvailableIssueOps } from '@/lib/data'
 import { Category } from '@/lib/enums'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { getIssueCreationUrl } from '@/lib/utils'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { z } from 'zod'
@@ -144,7 +144,7 @@ export default function Home() {
                     window.open(
                       getIssueCreationUrl({
                         issueFormTemplate: issueOp.issueFormTemplate,
-                        label: issueOp.label
+                        labels: [issueOp.label, 'issue-ops']
                       }),
                       '_blank'
                     )

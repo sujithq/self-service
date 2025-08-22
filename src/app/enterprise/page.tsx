@@ -9,8 +9,8 @@ import {
   CardTitle
 } from '@/components/ui/card'
 import { AvailableIssueOps } from '@/lib/data'
-import { getIssueCreationUrl } from '@/lib/utils'
 import { Category } from '@/lib/enums'
+import { getIssueCreationUrl } from '@/lib/utils'
 
 export default function Home() {
   const filteredIssueOps = AvailableIssueOps.filter(
@@ -43,7 +43,7 @@ export default function Home() {
                     window.open(
                       getIssueCreationUrl({
                         issueFormTemplate: issueOp.issueFormTemplate,
-                        label: issueOp.label
+                        labels: [issueOp.label, 'issue-ops']
                       }),
                       '_blank'
                     )

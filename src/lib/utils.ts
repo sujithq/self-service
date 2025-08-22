@@ -17,7 +17,7 @@ export function cn(...inputs: ClassValue[]) {
  */
 export function getIssueCreationUrl(args: {
   issueFormTemplate: string
-  label: string
+  labels: string | string[]
   owner?: string
   repo?: string
 }): string {
@@ -44,9 +44,10 @@ export function getIssueCreationUrl(args: {
     }
   }
 
+  const labelsArray = Array.isArray(args.labels) ? args.labels : [args.labels]
   const params = new URLSearchParams({
     template: args.issueFormTemplate,
-    labels: args.label
+    labels: labelsArray.join(',')
   })
   return `https://github.com/${owner}/${repo}/issues/new?${params.toString()}`
 }
